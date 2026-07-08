@@ -41,7 +41,7 @@ class TaskController extends Controller
             ->get();
 
         // Unassigned, open tasks that aren't already on today's agenda (overdue /
-        // due-today) — so quick-adds are visible without duplicating the agenda.
+        // due-today) — shown below the agenda so quick-adds are visible here.
         $inbox = $request->user()->tasks()
             ->with('suggestedProject:id,name,color')
             ->inInbox()
@@ -54,18 +54,11 @@ class TaskController extends Controller
             ->latest('created_at')
             ->get();
 
-        $projects = $request->user()->projects()
-            ->active()
-            ->withCount(['tasks as open_tasks_count' => fn ($query) => $query->whereNull('completed_at')])
-            ->orderBy('name')
-            ->get();
-
         return Inertia::render('Vandaag', [
             'date' => $today,
             'overdue' => $overdue,
             'today' => $due,
             'inbox' => $inbox,
-            'projects' => $projects,
         ]);
     }
 

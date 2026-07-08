@@ -15,6 +15,8 @@ const props = withDefaults(
     { project: null, submitLabel: 'Add' },
 );
 
+const emit = defineEmits<{ (e: 'saved'): void }>();
+
 const swatches = ['#F2A93B', '#22A9B8', '#D64545', '#6B7280', '#7C9A3B'];
 
 const form = useForm({
@@ -27,6 +29,7 @@ const submit = () => {
     if (props.project) {
         form.put(ProjectController.update(props.project).url, {
             preserveScroll: true,
+            onSuccess: () => emit('saved'),
         });
 
         return;
@@ -34,7 +37,10 @@ const submit = () => {
 
     form.post(ProjectController.store().url, {
         preserveScroll: true,
-        onSuccess: () => form.reset(),
+        onSuccess: () => {
+            form.reset();
+            emit('saved');
+        },
     });
 };
 </script>

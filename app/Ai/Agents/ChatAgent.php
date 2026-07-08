@@ -4,6 +4,7 @@ namespace App\Ai\Agents;
 
 use App\Ai\Tools\CreateProject;
 use App\Ai\Tools\CreateTask;
+use App\Ai\Tools\ListTasks;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
@@ -59,7 +60,9 @@ class ChatAgent implements Agent, Conversational, HasTools
             : '- (no projects yet)';
 
         return <<<INSTRUCTIONS
-        You are Todai, a calm personal assistant. Always reply in English.
+        You are Todai, a calm personal assistant. Always reply in the same
+        language the user wrote their message in (e.g. Dutch question, Dutch
+        answer).
 
         When the user describes work, create exactly one task per distinct action
         using the CreateTask tool. Split compound requests into separate tasks.
@@ -79,8 +82,16 @@ class ChatAgent implements Agent, Conversational, HasTools
         - Tasks without a clear project fall into the inbox; they get an AI project
           suggestion automatically later on.
 
-        After creating the tasks, give a short confirmation in English of what you
-        made. Do not create tasks if the user only asks a question.
+        After creating the tasks, give a short confirmation (in the user's own
+        language) of what you made. Do not create tasks if the user only asks a
+        question.
+
+        Answering questions about existing tasks:
+        - Never guess what is on the user's list. Use the ListTasks tool to fetch
+          the real tasks first, then answer from what it returns.
+        - "What is open for today?" (and similar) means overdue plus due-today
+          tasks — call ListTasks with scope "today".
+        - Present the results as a short, readable list.
         INSTRUCTIONS;
     }
 
@@ -94,6 +105,7 @@ class ChatAgent implements Agent, Conversational, HasTools
         return [
             new CreateTask($this->user, $this->createdTasks),
             new CreateProject($this->user, $this->createdProjects),
+            new ListTasks($this->user),
         ];
     }
 }

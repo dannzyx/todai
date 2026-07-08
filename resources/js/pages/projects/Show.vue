@@ -1,18 +1,29 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Archive, ArchiveRestore, ArrowLeft } from '@lucide/vue';
+import { Archive, ArchiveRestore, ArrowLeft, Pencil, Plus } from '@lucide/vue';
+import { ref } from 'vue';
 import ProjectController from '@/actions/App/Http/Controllers/ProjectController';
 import Meta from '@/components/todai/Meta.vue';
 import ProjectForm from '@/components/todai/ProjectForm.vue';
-import TaskForm from '@/components/todai/TaskForm.vue';
 import TaskList from '@/components/todai/TaskList.vue';
 import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import { useTaskModal } from '@/composables/useTaskModal';
 import type { Project, Task } from '@/types';
 
 const props = defineProps<{
     project: Project;
     tasks: Task[];
 }>();
+
+const { openTaskModal } = useTaskModal();
+
+const editing = ref(false);
 
 const isArchived = () => props.project.archived_at !== null;
 
@@ -54,21 +65,27 @@ const toggleArchive = () => {
                 </div>
             </div>
 
-            <Button variant="outline" size="sm" @click="toggleArchive">
-                <component
-                    :is="isArchived() ? ArchiveRestore : Archive"
-                    class="mr-1.5 h-4 w-4"
-                />
-                {{ isArchived() ? 'Restore' : 'Archive' }}
-            </Button>
+            <div class="flex shrink-0 items-center gap-2">
+                <Button size="sm" @click="openTaskModal(project.id)">
+                    <Plus class="mr-1.5 h-4 w-4" />
+                    New task
+                </Button>
+                <Button variant="outline" size="sm" @click="editing = true">
+                    <Pencil class="mr-1.5 h-4 w-4" />
+                    Edit
+                </Button>
+                <Button variant="outline" size="sm" @click="toggleArchive">
+                    <component
+                        :is="isArchived() ? ArchiveRestore : Archive"
+                        class="mr-1.5 h-4 w-4"
+                    />
+                    {{ isArchived() ? 'Restore' : 'Archive' }}
+                </Button>
+            </div>
         </header>
 
         <section aria-label="Tasks" class="space-y-4">
             <h2 class="text-sm font-semibold text-foreground">Tasks</h2>
-
-            <div class="rounded-xl border border-border bg-card p-4 shadow-sm">
-                <TaskForm :default-project-id="project.id" />
-            </div>
 
             <div
                 v-if="tasks.length === 0"
@@ -79,14 +96,17 @@ const toggleArchive = () => {
             <TaskList v-else :tasks="tasks" :show-project="false" />
         </section>
 
-        <section
-            class="rounded-xl border border-border bg-card p-5 shadow-sm"
-            aria-label="Edit project"
-        >
-            <h2 class="mb-4 text-sm font-semibold text-foreground">
-                Edit project
-            </h2>
-            <ProjectForm :project="project" submit-label="Save" />
-        </section>
+        <Dialog v-model:open="editing">
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Edit project</DialogTitle>
+                </DialogHeader>
+                <ProjectForm
+                    :project="project"
+                    submit-label="Save"
+                    @saved="editing = false"
+                />
+            </DialogContent>
+        </Dialog>
     </div>
 </template>

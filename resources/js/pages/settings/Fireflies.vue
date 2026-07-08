@@ -34,12 +34,47 @@ const save = () => {
     form.put(update().url, { preserveScroll: true });
 };
 
+const copyToClipboard = async (text: string): Promise<boolean> => {
+    // The async Clipboard API is only available in secure contexts (HTTPS or
+    // localhost). Over plain HTTP (e.g. herd's *.test) it's undefined, so fall
+    // back to a temporary textarea + execCommand.
+    if (navigator.clipboard?.writeText) {
+        try {
+            await navigator.clipboard.writeText(text);
+            return true;
+        } catch {
+            // Fall through to the legacy path.
+        }
+    }
+
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+
+    let succeeded = false;
+    try {
+        succeeded = document.execCommand('copy');
+    } catch {
+        succeeded = false;
+    }
+
+    document.body.removeChild(textarea);
+
+    return succeeded;
+};
+
 const copyWebhook = async () => {
     if (!props.webhookUrl) {
         return;
     }
 
-    await navigator.clipboard.writeText(props.webhookUrl);
+    if (!(await copyToClipboard(props.webhookUrl))) {
+        return;
+    }
+
     copied.value = true;
     window.setTimeout(() => (copied.value = false), 1500);
 };

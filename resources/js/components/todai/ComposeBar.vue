@@ -42,7 +42,7 @@ const submit = () => {
             <input
                 v-model="form.title"
                 type="text"
-                placeholder="Type a task, or talk to Todai..."
+                placeholder="Type a task..."
                 aria-label="New task"
                 class="flex-1 rounded-full border border-input bg-card px-4 py-2.5 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:border-solar focus-visible:ring-2 focus-visible:ring-solar/40 focus-visible:outline-none"
             />

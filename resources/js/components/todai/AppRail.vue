@@ -104,7 +104,11 @@ const emit = defineEmits<{ (e: 'open-command'): void }>();
                         class="flex items-center rounded-full focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                         aria-label="Account menu"
                     >
-                        <UserInfo :user="user" class="rounded-full" />
+                        <UserInfo
+                            :user="user"
+                            :show-name="false"
+                            class="rounded-full"
+                        />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent class="w-56" align="end">
                         <UserMenuContent :user="user" />

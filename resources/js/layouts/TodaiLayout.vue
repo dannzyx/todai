@@ -3,6 +3,7 @@ import { onMounted, onUnmounted, ref } from 'vue';
 import AppRail from '@/components/todai/AppRail.vue';
 import CommandPalette from '@/components/todai/CommandPalette.vue';
 import ComposeBar from '@/components/todai/ComposeBar.vue';
+import TaskModal from '@/components/todai/TaskModal.vue';
 import { Toaster } from '@/components/ui/sonner';
 import type { BreadcrumbItem } from '@/types';
 
@@ -46,6 +47,8 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown));
         <ComposeBar />
 
         <CommandPalette v-model:open="paletteOpen" />
+
+        <TaskModal />
 
         <Toaster />
     </div>

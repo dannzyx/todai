@@ -3,6 +3,7 @@
 use App\Ai\Agents\ChatAgent;
 use App\Ai\Tools\CreateProject;
 use App\Ai\Tools\CreateTask;
+use App\Ai\Tools\ListTasks;
 use App\Enums\TaskSource;
 use App\Jobs\ClassifyTaskProject;
 use App\Models\Project;
@@ -169,4 +170,55 @@ it('drops an invalid color', function () {
     );
 
     expect(Project::sole()->color)->toBeNull();
+});
+
+// --- ListTasks tool ----------------------------------------------------------
+
+it('lists overdue and due-today tasks for the "today" scope', function () {
+    $user = User::factory()->create();
+    Task::factory()->for($user)->overdue()->create(['title' => 'Overdue thing']);
+    Task::factory()->for($user)->dueOn()->create(['title' => 'Today thing']);
+    Task::factory()->for($user)->dueOn(now()->addWeek()->toDateString())->create(['title' => 'Upcoming thing']);
+    Task::factory()->for($user)->create(['title' => 'Inbox thing', 'due_date' => null]);
+    Task::factory()->create(['title' => 'Someone elses thing']); // different user
+
+    $result = (new ListTasks($user))->handle(new ToolRequest(['scope' => 'today']));
+
+    expect($result)->toContain('Overdue thing')
+        ->and($result)->toContain('Today thing')
+        ->and($result)->not->toContain('Upcoming thing')
+        ->and($result)->not->toContain('Inbox thing')
+        ->and($result)->not->toContain('Someone elses thing');
+});
+
+it('lists only inbox tasks for the "inbox" scope', function () {
+    $user = User::factory()->create();
+    $project = Project::factory()->for($user)->create();
+    Task::factory()->for($user)->create(['title' => 'Loose task', 'due_date' => null, 'project_id' => null]);
+    Task::factory()->for($user)->create(['title' => 'Project task', 'project_id' => $project->id]);
+
+    $result = (new ListTasks($user))->handle(new ToolRequest(['scope' => 'inbox']));
+
+    expect($result)->toContain('Loose task')
+        ->and($result)->not->toContain('Project task');
+});
+
+it('filters tasks by project name', function () {
+    $user = User::factory()->create();
+    $sales = Project::factory()->for($user)->create(['name' => 'Sales']);
+    Task::factory()->for($user)->create(['title' => 'Sales task', 'project_id' => $sales->id]);
+    Task::factory()->for($user)->create(['title' => 'Inbox task', 'project_id' => null]);
+
+    $result = (new ListTasks($user))->handle(new ToolRequest(['scope' => 'open', 'project' => 'sales']));
+
+    expect($result)->toContain('Sales task')
+        ->and($result)->not->toContain('Inbox task');
+});
+
+it('reports when no tasks match the scope', function () {
+    $user = User::factory()->create();
+
+    $result = (new ListTasks($user))->handle(new ToolRequest(['scope' => 'today']));
+
+    expect((string) $result)->toContain('No tasks match');
 });

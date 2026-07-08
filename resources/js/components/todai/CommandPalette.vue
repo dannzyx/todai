@@ -5,28 +5,49 @@ import {
     FolderKanban,
     Inbox,
     MessageSquare,
+    Plus,
     Search,
 } from '@lucide/vue';
 import { computed, nextTick, ref, watch } from 'vue';
 import ProjectController from '@/actions/App/Http/Controllers/ProjectController';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { useTaskModal } from '@/composables/useTaskModal';
 
 const open = defineModel<boolean>('open', { default: false });
+
+const { openTaskModal } = useTaskModal();
 
 type Command = {
     id: string;
     label: string;
     hint?: string;
     icon: unknown;
-    url: string;
+    url?: string;
+    action?: () => void;
 };
 
 const page = usePage();
+
+// When viewing a project (projects/Show sets a `project` prop), a new task
+// should default to that project; otherwise it lands in the inbox.
+const currentProjectId = computed<string | null>(() => {
+    const project = page.props.project as { id?: string } | undefined;
+
+    return project?.id ?? null;
+});
+
 const search = ref('');
 const activeIndex = ref(0);
 const inputEl = ref<HTMLInputElement | null>(null);
 
 const baseCommands = computed<Command[]>(() => [
+    {
+        id: 'new-task',
+        label: 'New task',
+        hint: 'Add',
+        icon: Plus,
+        action: () => openTaskModal(currentProjectId.value),
+    },
     { id: 'vandaag', label: 'Today', icon: CalendarDays, url: '/' },
     { id: 'inbox', label: 'Inbox', icon: Inbox, url: '/inbox' },
     {
@@ -76,7 +97,16 @@ const select = (command: Command | undefined) => {
     }
 
     open.value = false;
-    router.visit(command.url);
+
+    if (command.action) {
+        command.action();
+
+        return;
+    }
+
+    if (command.url) {
+        router.visit(command.url);
+    }
 };
 
 const onKeydown = (event: KeyboardEvent) => {

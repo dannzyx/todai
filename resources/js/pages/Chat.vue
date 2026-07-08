@@ -3,6 +3,7 @@ import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { ArrowUp } from '@lucide/vue';
 import { nextTick, ref, watch } from 'vue';
 import ChatController from '@/actions/App/Http/Controllers/ChatController';
+import Markdown from '@/components/todai/Markdown.vue';
 import Meta from '@/components/todai/Meta.vue';
 import VoiceCard from '@/components/todai/VoiceCard.vue';
 import { Button } from '@/components/ui/button';
@@ -104,11 +105,7 @@ const startNew = () => {
                             voice="ai"
                             class="max-w-[85%] rounded-2xl rounded-bl-sm px-4 py-2.5"
                         >
-                            <p
-                                class="text-sm whitespace-pre-wrap text-foreground"
-                            >
-                                {{ message.content }}
-                            </p>
+                            <Markdown :content="message.content" />
                         </VoiceCard>
                     </div>
                 </template>

@@ -159,6 +159,25 @@ it('shows overdue and due-today tasks on Vandaag', function () {
         );
 });
 
+it('includes inbox tasks and projects on the Today dashboard', function () {
+    $user = User::factory()->create();
+    $inboxTask = Task::factory()->for($user)->create(['project_id' => null, 'due_date' => null]);
+    $project = Project::factory()->for($user)->create();
+    Task::factory()->forProject($project)->completed()->create(); // shouldn't inflate open count
+
+    $this->actingAs($user)
+        ->get(route('dashboard'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('Vandaag')
+            ->has('inbox', 1)
+            ->where('inbox.0.id', $inboxTask->id)
+            ->has('projects', 1)
+            ->where('projects.0.id', $project->id)
+            ->where('projects.0.open_tasks_count', 0)
+        );
+});
+
 it('lists only inbox tasks on the inbox page', function () {
     $user = User::factory()->create();
     $inbox = Task::factory()->for($user)->create(['project_id' => null]);

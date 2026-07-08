@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TaskController;
 use Illuminate\Http\Request;
@@ -32,6 +33,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('taken/{task}/suggestie', [TaskController::class, 'suggest'])->name('tasks.suggest');
     Route::patch('taken/{task}/suggestie/toewijzen', [TaskController::class, 'acceptSuggestion'])->name('tasks.suggestion.accept');
     Route::patch('taken/{task}/suggestie/negeren', [TaskController::class, 'dismissSuggestion'])->name('tasks.suggestion.dismiss');
+
+    // Chat (Phase 4).
+    Route::get('chat', [ChatController::class, 'index'])->name('chat.index');
+    Route::post('chat', [ChatController::class, 'send'])->name('chat.send');
+    Route::post('chat/nieuw', [ChatController::class, 'reset'])->name('chat.reset');
 
     // Projects (Dutch URLs, English route names).
     Route::get('projecten', [ProjectController::class, 'index'])->name('projects.index');

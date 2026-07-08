@@ -1,13 +1,21 @@
 <script setup lang="ts">
-import { useForm } from '@inertiajs/vue3';
+import { useForm, usePage } from '@inertiajs/vue3';
 import { ArrowUp } from '@lucide/vue';
+import { computed } from 'vue';
 import TaskController from '@/actions/App/Http/Controllers/TaskController';
 
 /**
- * The persistent compose bar — Todai's signature interaction. In this phase it
- * does quick-add only: type a task and it drops into the Inbox. Phase 4 upgrades
- * it to also open a conversation with Todai.
+ * The persistent compose bar — Todai's signature quick-add: type a task and it
+ * drops into the Inbox. Hidden on the Chat page, which has its own conversation
+ * input.
  */
+const page = usePage();
+const onChatPage = computed(() => {
+    const path = page.url.split('?')[0];
+
+    return path === '/chat' || path.startsWith('/chat/');
+});
+
 const form = useForm<{ title: string }>({ title: '' });
 
 const submit = () => {
@@ -24,6 +32,7 @@ const submit = () => {
 
 <template>
     <div
+        v-if="!onChatPage"
         class="sticky bottom-0 z-30 border-t border-border/70 bg-background/85 backdrop-blur"
     >
         <form

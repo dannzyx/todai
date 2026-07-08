@@ -6,22 +6,27 @@ import { Separator } from '@/components/ui/separator';
 import { useCurrentUrl } from '@/composables/useCurrentUrl';
 import { toUrl } from '@/lib/utils';
 import { edit as editAppearance } from '@/routes/appearance';
+import { edit as editFireflies } from '@/routes/fireflies';
 import { edit as editProfile } from '@/routes/profile';
 import { edit as editSecurity } from '@/routes/security';
 import type { NavItem } from '@/types';
 
 const sidebarNavItems: NavItem[] = [
     {
-        title: 'Profile',
+        title: 'Profiel',
         href: editProfile(),
     },
     {
-        title: 'Security',
+        title: 'Beveiliging',
         href: editSecurity(),
     },
     {
-        title: 'Appearance',
+        title: 'Weergave',
         href: editAppearance(),
+    },
+    {
+        title: 'Fireflies',
+        href: editFireflies(),
     },
 ];
 
@@ -31,8 +36,8 @@ const { isCurrentOrParentUrl } = useCurrentUrl();
 <template>
     <div class="px-4 py-6">
         <Heading
-            title="Settings"
-            description="Manage your profile and account settings"
+            title="Instellingen"
+            description="Beheer je profiel en accountinstellingen"
         />
 
         <div class="flex flex-col lg:flex-row lg:space-x-12">

@@ -1,11 +1,16 @@
 <?php
 
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\FirefliesWebhookController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TaskController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
+// Fireflies webhook — machine-to-machine, no auth; the token identifies the user.
+Route::post('webhooks/fireflies/{token}', FirefliesWebhookController::class)
+    ->name('fireflies.webhook');
 
 // Vandaag is the landing for authenticated users; guests see the marketing page.
 Route::get('/', function (Request $request) {

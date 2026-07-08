@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Settings\FirefliesController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\SecurityController;
 use Illuminate\Auth\Middleware\RequirePassword;
@@ -24,6 +25,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('user-password.update');
 
     Route::inertia('settings/appearance', 'settings/Appearance')->name('appearance.edit');
+
+    // Fireflies integration (per-user).
+    Route::get('settings/fireflies', [FirefliesController::class, 'edit'])->name('fireflies.edit');
+    Route::put('settings/fireflies', [FirefliesController::class, 'update'])->name('fireflies.update');
+    Route::patch('settings/fireflies/roteren', [FirefliesController::class, 'rotate'])->name('fireflies.rotate');
+    Route::delete('settings/fireflies', [FirefliesController::class, 'destroy'])->name('fireflies.destroy');
 });
 
 Route::get('.well-known/passkey-endpoints', function () {

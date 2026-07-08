@@ -1,6 +1,7 @@
 <?php
 
 use App\Ai\Agents\ChatAgent;
+use App\Ai\Tools\CreateProject;
 use App\Ai\Tools\CreateTask;
 use App\Enums\TaskSource;
 use App\Jobs\ClassifyTaskProject;
@@ -127,4 +128,45 @@ it('drops an invalid due date', function () {
     );
 
     expect(Task::sole()->due_date)->toBeNull();
+});
+
+// --- CreateProject tool ------------------------------------------------------
+
+it('creates a project for the user', function () {
+    $user = User::factory()->create();
+    $created = collect();
+
+    $result = (new CreateProject($user, $created))->handle(
+        new ToolRequest(['name' => 'Website herbouw', 'color' => '#6b7280']),
+    );
+
+    $project = Project::sole();
+    expect($project->name)->toBe('Website herbouw')
+        ->and($project->user_id)->toBe($user->id)
+        ->and($project->color)->toBe('#6B7280') // normalised to uppercase hex
+        ->and($created)->toHaveCount(1)
+        ->and($result)->toBeString();
+});
+
+it('does not create a duplicate active project', function () {
+    $user = User::factory()->create();
+    Project::factory()->for($user)->create(['name' => 'Sales']);
+    $created = collect();
+
+    (new CreateProject($user, $created))->handle(
+        new ToolRequest(['name' => 'sales']), // case-insensitive match
+    );
+
+    expect(Project::where('user_id', $user->id)->count())->toBe(1)
+        ->and($created)->toHaveCount(0);
+});
+
+it('drops an invalid color', function () {
+    $user = User::factory()->create();
+
+    (new CreateProject($user, collect()))->handle(
+        new ToolRequest(['name' => 'Iets', 'color' => 'blauw']),
+    );
+
+    expect(Project::sole()->color)->toBeNull();
 });

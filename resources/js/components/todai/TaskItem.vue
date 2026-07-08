@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3';
 import { Check, MoreHorizontal } from '@lucide/vue';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import TaskController from '@/actions/App/Http/Controllers/TaskController';
 import Meta from '@/components/todai/Meta.vue';
 import SuggestionBanner from '@/components/todai/SuggestionBanner.vue';
@@ -31,6 +31,23 @@ const props = withDefaults(
 
 const editing = ref(false);
 
+// When linked to directly (e.g. from the "Task added" toast via #task-{id}),
+// scroll this item into view and briefly highlight it.
+const root = ref<HTMLElement | null>(null);
+const highlighted = ref(false);
+
+onMounted(() => {
+    if (window.location.hash !== `#task-${props.task.id}`) {
+        return;
+    }
+
+    root.value?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    highlighted.value = true;
+    window.setTimeout(() => {
+        highlighted.value = false;
+    }, 2000);
+});
+
 const bucket = computed(() => bucketFor(props.task));
 
 const dueClass = computed(() => {
@@ -57,7 +74,14 @@ const toggle = () => {
     <ContextMenu>
         <ContextMenuTrigger as-child>
             <div
-                class="group flex items-start gap-3 rounded-xl border border-border bg-card px-4 py-3 shadow-sm transition-colors hover:border-solar/40"
+                :id="`task-${task.id}`"
+                ref="root"
+                class="group flex items-start gap-3 rounded-xl border border-border bg-card px-4 py-3 shadow-sm transition-all hover:border-solar/40"
+                :class="
+                    highlighted
+                        ? 'border-solar ring-2 ring-solar/50 ring-offset-2 ring-offset-background'
+                        : ''
+                "
             >
                 <button
                     type="button"

@@ -13,7 +13,7 @@ it('requires authentication for the inbox', function () {
 it('quick-adds a task to the inbox as manual source', function () {
     $user = User::factory()->create();
 
-    $this->actingAs($user)
+    $response = $this->actingAs($user)
         ->post(route('tasks.store'), ['title' => 'Remy bellen'])
         ->assertRedirect();
 
@@ -23,13 +23,23 @@ it('quick-adds a task to the inbox as manual source', function () {
         ->and($task->project_id)->toBeNull()
         ->and($task->source)->toBe(TaskSource::Manual)
         ->and($task->user_id)->toBe($user->id);
+
+    // The success toast links back to the new task in the inbox.
+    $response->assertInertiaFlash('toast', [
+        'type' => 'success',
+        'message' => 'Task added.',
+        'action' => [
+            'label' => 'View',
+            'href' => "/inbox#task-{$task->id}",
+        ],
+    ]);
 });
 
 it('creates a task directly inside a project', function () {
     $user = User::factory()->create();
     $project = Project::factory()->for($user)->create();
 
-    $this->actingAs($user)
+    $response = $this->actingAs($user)
         ->post(route('tasks.store'), [
             'title' => 'Offerte afmaken',
             'project_id' => $project->id,
@@ -37,7 +47,19 @@ it('creates a task directly inside a project', function () {
         ])
         ->assertRedirect();
 
-    expect(Task::sole()->project_id)->toBe($project->id);
+    $task = Task::sole();
+
+    expect($task->project_id)->toBe($project->id);
+
+    // A task created inside a project links to that project's page.
+    $response->assertInertiaFlash('toast', [
+        'type' => 'success',
+        'message' => 'Task added.',
+        'action' => [
+            'label' => 'View',
+            'href' => "/projecten/{$project->id}#task-{$task->id}",
+        ],
+    ]);
 });
 
 it('requires a title', function () {
@@ -159,18 +181,16 @@ it('shows overdue and due-today tasks on Vandaag', function () {
         );
 });
 
-it('includes undated inbox tasks below the agenda on Today', function () {
+it('does not include the inbox on Today', function () {
     $user = User::factory()->create();
-    $inboxTask = Task::factory()->for($user)->create(['project_id' => null, 'due_date' => null]);
-    Task::factory()->for($user)->overdue()->create(); // on the agenda, excluded from inbox list
+    Task::factory()->for($user)->create(['project_id' => null, 'due_date' => null]);
 
     $this->actingAs($user)
         ->get(route('dashboard'))
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('Vandaag')
-            ->has('inbox', 1)
-            ->where('inbox.0.id', $inboxTask->id)
+            ->missing('inbox')
         );
 });
 

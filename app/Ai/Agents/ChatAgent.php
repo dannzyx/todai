@@ -2,7 +2,9 @@
 
 namespace App\Ai\Agents;
 
+use App\Ai\Tools\CreateProject;
 use App\Ai\Tools\CreateTask;
+use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Support\Collection;
@@ -31,9 +33,17 @@ class ChatAgent implements Agent, Conversational, HasTools
      */
     public Collection $createdTasks;
 
+    /**
+     * Projects created during the current turn.
+     *
+     * @var Collection<int, Project>
+     */
+    public Collection $createdProjects;
+
     public function __construct(public User $user)
     {
         $this->createdTasks = collect();
+        $this->createdProjects = collect();
     }
 
     /**
@@ -60,9 +70,12 @@ class ChatAgent implements Agent, Conversational, HasTools
           and pass due_date as YYYY-MM-DD. No clear date? Leave due_date empty.
 
         Projects:
-        - Never invent a project. Only fill the project field when the user clearly
-          names one of these existing projects:
+        - These are the user's existing projects:
         {$projectList}
+        - Only fill a task's project field when the user clearly names one of the
+          existing projects above. Never invent or guess a project for a task.
+        - When the user explicitly asks to create or start a new project, use the
+          CreateProject tool. Create the project first, then you may put tasks in it.
         - Tasks without a clear project fall into the inbox; they get an AI project
           suggestion automatically later on.
 
@@ -80,6 +93,7 @@ class ChatAgent implements Agent, Conversational, HasTools
     {
         return [
             new CreateTask($this->user, $this->createdTasks),
+            new CreateProject($this->user, $this->createdProjects),
         ];
     }
 }

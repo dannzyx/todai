@@ -40,25 +40,10 @@ class TaskController extends Controller
             ->orderBy('completed_at')
             ->get();
 
-        // Unassigned, open tasks that aren't already on today's agenda (overdue /
-        // due-today) — shown below the agenda so quick-adds are visible here.
-        $inbox = $request->user()->tasks()
-            ->with('suggestedProject:id,name,color')
-            ->inInbox()
-            ->incomplete()
-            ->where(fn ($query) => $query
-                ->whereNull('due_date')
-                ->orWhereDate('due_date', '>', $today))
-            ->orderByRaw('due_date is null')
-            ->orderBy('due_date')
-            ->latest('created_at')
-            ->get();
-
         return Inertia::render('Vandaag', [
             'date' => $today,
             'overdue' => $overdue,
             'today' => $due,
-            'inbox' => $inbox,
         ]);
     }
 
@@ -100,7 +85,18 @@ class TaskController extends Controller
             ClassifyTaskProject::dispatch($task);
         }
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Task added.']);
+        $location = $task->project_id !== null
+            ? route('projects.show', $task->project_id, absolute: false)
+            : route('tasks.inbox', absolute: false);
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => 'Task added.',
+            'action' => [
+                'label' => 'View',
+                'href' => $location.'#task-'.$task->id,
+            ],
+        ]);
 
         return back();
     }

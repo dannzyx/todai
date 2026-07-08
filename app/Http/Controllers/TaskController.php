@@ -7,6 +7,7 @@ use App\Http\Requests\MoveTaskRequest;
 use App\Http\Requests\SetTaskDueDateRequest;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
+use App\Jobs\ClassifyTaskProject;
 use App\Models\Task;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -26,7 +27,7 @@ class TaskController extends Controller
         $today = now()->toDateString();
 
         $overdue = $request->user()->tasks()
-            ->with('project:id,name,color')
+            ->with(['project:id,name,color', 'suggestedProject:id,name,color'])
             ->whereNull('completed_at')
             ->whereNotNull('due_date')
             ->whereDate('due_date', '<', $today)
@@ -34,7 +35,7 @@ class TaskController extends Controller
             ->get();
 
         $due = $request->user()->tasks()
-            ->with('project:id,name,color')
+            ->with(['project:id,name,color', 'suggestedProject:id,name,color'])
             ->whereDate('due_date', $today)
             ->orderBy('completed_at')
             ->get();
@@ -54,6 +55,7 @@ class TaskController extends Controller
         Gate::authorize('viewAny', Task::class);
 
         $tasks = $request->user()->tasks()
+            ->with('suggestedProject:id,name,color')
             ->inInbox()
             ->orderByRaw('completed_at is null desc')
             ->orderByRaw('due_date is null')
@@ -73,10 +75,15 @@ class TaskController extends Controller
     {
         Gate::authorize('create', Task::class);
 
-        $request->user()->tasks()->create([
+        $task = $request->user()->tasks()->create([
             ...$request->validated(),
             'source' => TaskSource::Manual,
         ]);
+
+        // Tasks that land in the Inbox get an AI project suggestion.
+        if ($task->project_id === null) {
+            ClassifyTaskProject::dispatch($task);
+        }
 
         Inertia::flash('toast', ['type' => 'success', 'message' => 'Taak toegevoegd.']);
 
@@ -132,6 +139,57 @@ class TaskController extends Controller
 
         $task->update([
             'completed_at' => $task->completed_at === null ? now() : null,
+        ]);
+
+        return back();
+    }
+
+    /**
+     * Re-run the AI project suggestion for an Inbox task on demand.
+     */
+    public function suggest(Task $task): RedirectResponse
+    {
+        Gate::authorize('update', $task);
+
+        if ($task->project_id === null) {
+            ClassifyTaskProject::dispatch($task);
+        }
+
+        return back();
+    }
+
+    /**
+     * Accept the AI suggestion: assign the task and clear the suggestion.
+     */
+    public function acceptSuggestion(Task $task): RedirectResponse
+    {
+        Gate::authorize('update', $task);
+
+        if ($task->suggested_project_id !== null) {
+            $task->update([
+                'project_id' => $task->suggested_project_id,
+                'suggested_project_id' => null,
+                'suggestion_confidence' => null,
+                'suggestion_reasoning' => null,
+            ]);
+
+            Inertia::flash('toast', ['type' => 'success', 'message' => 'Taak toegewezen.']);
+        }
+
+        return back();
+    }
+
+    /**
+     * Dismiss the AI suggestion without assigning the task.
+     */
+    public function dismissSuggestion(Task $task): RedirectResponse
+    {
+        Gate::authorize('update', $task);
+
+        $task->update([
+            'suggested_project_id' => null,
+            'suggestion_confidence' => null,
+            'suggestion_reasoning' => null,
         ]);
 
         return back();

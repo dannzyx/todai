@@ -28,6 +28,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('taken/{task}/status', [TaskController::class, 'toggle'])->name('tasks.toggle');
     Route::delete('taken/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
 
+    // AI project suggestions (Phase 3).
+    Route::patch('taken/{task}/suggestie', [TaskController::class, 'suggest'])->name('tasks.suggest');
+    Route::patch('taken/{task}/suggestie/toewijzen', [TaskController::class, 'acceptSuggestion'])->name('tasks.suggestion.accept');
+    Route::patch('taken/{task}/suggestie/negeren', [TaskController::class, 'dismissSuggestion'])->name('tasks.suggestion.dismiss');
+
     // Projects (Dutch URLs, English route names).
     Route::get('projecten', [ProjectController::class, 'index'])->name('projects.index');
     Route::post('projecten', [ProjectController::class, 'store'])->name('projects.store');

@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { router, usePage } from '@inertiajs/vue3';
-import { Calendar, Check, FolderInput, MoreHorizontal, Pencil, Trash2 } from '@lucide/vue';
+import { Calendar, Check, FolderInput, Lightbulb, MoreHorizontal, Pencil, Trash2 } from '@lucide/vue';
 import { computed, ref } from 'vue';
 import TaskController from '@/actions/App/Http/Controllers/TaskController';
 import Meta from '@/components/todai/Meta.vue';
+import SuggestionBanner from '@/components/todai/SuggestionBanner.vue';
 import TaskForm from '@/components/todai/TaskForm.vue';
 import {
     Dialog,
@@ -74,6 +75,10 @@ const moveTo = (projectId: string | null) => {
     );
 };
 
+const suggest = () => {
+    router.patch(TaskController.suggest(props.task).url, {}, { preserveScroll: true });
+};
+
 const destroy = () => {
     router.delete(TaskController.destroy(props.task).url, { preserveScroll: true });
 };
@@ -135,7 +140,10 @@ const destroy = () => {
                 </Meta>
             </div>
 
-            <slot name="suggestion" />
+            <SuggestionBanner
+                v-if="task.suggested_project_id"
+                :task="task"
+            />
         </div>
 
         <DropdownMenu>
@@ -179,6 +187,13 @@ const destroy = () => {
                         </DropdownMenuItem>
                     </DropdownMenuSubContent>
                 </DropdownMenuSub>
+
+                <DropdownMenuItem
+                    v-if="!task.project_id"
+                    @click="suggest"
+                >
+                    <Lightbulb class="mr-2 h-4 w-4" /> Stel project voor
+                </DropdownMenuItem>
 
                 <DropdownMenuSeparator />
 

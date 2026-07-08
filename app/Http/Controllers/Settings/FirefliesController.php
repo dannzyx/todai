@@ -43,7 +43,7 @@ class FirefliesController extends Controller
 
         if ($email === null) {
             return back()->withErrors([
-                'api_key' => 'Deze API-sleutel is ongeldig of Fireflies is niet bereikbaar.',
+                'api_key' => 'This API key is invalid or Fireflies is unreachable.',
             ]);
         }
 
@@ -62,7 +62,7 @@ class FirefliesController extends Controller
             ],
         );
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Fireflies gekoppeld.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Fireflies connected.']);
 
         return to_route('fireflies.edit');
     }
@@ -78,7 +78,7 @@ class FirefliesController extends Controller
 
         $integration->update(['webhook_token' => FirefliesIntegration::generateToken()]);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Webhook-URL vernieuwd.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Webhook URL rotated.']);
 
         return to_route('fireflies.edit');
     }
@@ -90,7 +90,7 @@ class FirefliesController extends Controller
     {
         $request->user()->firefliesIntegration?->delete();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Fireflies ontkoppeld.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Fireflies disconnected.']);
 
         return to_route('fireflies.edit');
     }

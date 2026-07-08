@@ -18,7 +18,8 @@ const props = withDefaults(
 
 const emit = defineEmits<{ (e: 'saved'): void }>();
 
-const toDateInput = (iso: string | null): string => (iso ? iso.slice(0, 10) : '');
+const toDateInput = (iso: string | null): string =>
+    iso ? iso.slice(0, 10) : '';
 
 const form = useForm({
     title: props.task?.title ?? '',
@@ -52,19 +53,19 @@ const submit = () => {
 <template>
     <form class="space-y-4" @submit.prevent="submit">
         <div class="space-y-1.5">
-            <Label for="task-title">Titel</Label>
+            <Label for="task-title">Title</Label>
             <Input
                 id="task-title"
                 v-model="form.title"
                 type="text"
-                placeholder="Wat moet er gebeuren?"
+                placeholder="What needs to happen?"
                 autocomplete="off"
             />
             <InputError :message="form.errors.title" />
         </div>
 
         <div class="space-y-1.5">
-            <Label for="task-description">Omschrijving (optioneel)</Label>
+            <Label for="task-description">Description (optional)</Label>
             <textarea
                 id="task-description"
                 v-model="form.description"
@@ -76,7 +77,7 @@ const submit = () => {
 
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div class="space-y-1.5">
-                <Label for="task-due">Deadline (optioneel)</Label>
+                <Label for="task-due">Deadline (optional)</Label>
                 <Input id="task-due" v-model="form.due_date" type="date" />
                 <InputError :message="form.errors.due_date" />
             </div>
@@ -89,7 +90,7 @@ const submit = () => {
 
         <div class="flex justify-end">
             <Button type="submit" :disabled="form.processing">
-                {{ task ? 'Opslaan' : 'Toevoegen' }}
+                {{ task ? 'Save' : 'Add' }}
             </Button>
         </div>
     </form>

@@ -27,7 +27,7 @@ defineProps<{
             v-if="tasks.length === 0"
             class="rounded-xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground"
         >
-            Niks in je inbox. Typ hieronder om iets toe te voegen.
+            Nothing in your inbox. Type below to add something.
         </div>
 
         <TaskList v-else :tasks="tasks" :show-project="false" />

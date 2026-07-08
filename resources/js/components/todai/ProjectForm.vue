@@ -12,7 +12,7 @@ const props = withDefaults(
         project?: Project | null;
         submitLabel?: string;
     }>(),
-    { project: null, submitLabel: 'Toevoegen' },
+    { project: null, submitLabel: 'Add' },
 );
 
 const swatches = ['#F2A93B', '#22A9B8', '#D64545', '#6B7280', '#7C9A3B'];
@@ -42,31 +42,31 @@ const submit = () => {
 <template>
     <form class="space-y-4" @submit.prevent="submit">
         <div class="space-y-1.5">
-            <Label for="project-name">Naam</Label>
+            <Label for="project-name">Name</Label>
             <Input
                 id="project-name"
                 v-model="form.name"
                 type="text"
-                placeholder="Bijv. Website herontwerp"
+                placeholder="e.g. Website redesign"
                 autocomplete="off"
             />
             <InputError :message="form.errors.name" />
         </div>
 
         <div class="space-y-1.5">
-            <Label for="project-description">Omschrijving (optioneel)</Label>
+            <Label for="project-description">Description (optional)</Label>
             <textarea
                 id="project-description"
                 v-model="form.description"
                 rows="2"
-                placeholder="Waar gaat dit project over?"
+                placeholder="What is this project about?"
                 class="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
             />
             <InputError :message="form.errors.description" />
         </div>
 
         <div class="space-y-1.5">
-            <Label>Kleur</Label>
+            <Label>Color</Label>
             <div class="flex items-center gap-2">
                 <button
                     v-for="swatch in swatches"
@@ -79,7 +79,7 @@ const submit = () => {
                             : 'border-border'
                     "
                     :style="{ backgroundColor: swatch }"
-                    :aria-label="`Kleur ${swatch}`"
+                    :aria-label="`Color ${swatch}`"
                     :aria-pressed="form.color === swatch"
                     @click="form.color = form.color === swatch ? null : swatch"
                 />

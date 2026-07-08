@@ -83,13 +83,13 @@ class ClassifyTaskProject implements ShouldQueue
             })
             ->implode("\n");
 
-        $description = $task->description ? "\nOmschrijving: {$task->description}" : '';
+        $description = $task->description ? "\nDescription: {$task->description}" : '';
 
         return <<<PROMPT
-        Taak:
-        Titel: {$task->title}{$description}
+        Task:
+        Title: {$task->title}{$description}
 
-        Projecten:
+        Projects:
         {$list}
         PROMPT;
     }

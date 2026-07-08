@@ -35,7 +35,7 @@ class SetTaskDueDateRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'due_date.date' => 'Kies een geldige datum.',
+            'due_date.date' => 'Choose a valid date.',
         ];
     }
 }

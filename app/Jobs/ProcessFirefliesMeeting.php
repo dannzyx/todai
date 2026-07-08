@@ -37,7 +37,7 @@ class ProcessFirefliesMeeting implements ShouldQueue
         $integration = $import->user?->firefliesIntegration;
 
         if ($integration === null) {
-            $this->fail($import, 'Geen Fireflies-koppeling gevonden voor deze gebruiker.');
+            $this->fail($import, 'No Fireflies connection found for this user.');
 
             return;
         }
@@ -46,7 +46,7 @@ class ProcessFirefliesMeeting implements ShouldQueue
             $transcript = $client->transcript($integration->api_key, $import->fireflies_meeting_id);
 
             if ($transcript === null) {
-                $this->fail($import, 'Transcript kon niet opgehaald worden bij Fireflies.');
+                $this->fail($import, 'Could not fetch the transcript from Fireflies.');
 
                 return;
             }
@@ -59,7 +59,7 @@ class ProcessFirefliesMeeting implements ShouldQueue
             $response = (new TaskExtractorAgent)->prompt($this->buildPrompt($import, $transcript));
 
             if (! $response instanceof StructuredAgentResponse) {
-                $this->fail($import, 'Het extraheren van taken is mislukt.');
+                $this->fail($import, 'Extracting tasks failed.');
 
                 return;
             }
@@ -111,7 +111,7 @@ class ProcessFirefliesMeeting implements ShouldQueue
      */
     protected function buildPrompt(MeetingImport $import, array $transcript): string
     {
-        $meetingDate = $import->meeting_date?->toDateString() ?? 'onbekend';
+        $meetingDate = $import->meeting_date?->toDateString() ?? 'unknown';
         $timezone = config('app.timezone');
 
         $summary = $transcript['summary'] ?? [];
@@ -128,12 +128,12 @@ class ProcessFirefliesMeeting implements ShouldQueue
             ->implode("\n");
 
         return <<<PROMPT
-        Vergaderdatum: {$meetingDate} (tijdzone {$timezone}).
+        Meeting date: {$meetingDate} (timezone {$timezone}).
 
-        Fireflies actiepunten:
+        Fireflies action items:
         {$actionItems}
 
-        Samenvatting:
+        Summary:
         {$overview}
 
         Transcript:
@@ -152,7 +152,7 @@ class ProcessFirefliesMeeting implements ShouldQueue
                 ->implode("\n");
         }
 
-        return is_string($value) ? $value : '(geen)';
+        return is_string($value) ? $value : '(none)';
     }
 
     /**

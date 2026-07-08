@@ -61,7 +61,7 @@ const startNew = () => {
                     <h1
                         class="mt-1 font-display text-4xl font-semibold tracking-tight"
                     >
-                        Praat met Todai
+                        Talk to Todai
                     </h1>
                 </div>
                 <Button
@@ -70,7 +70,7 @@ const startNew = () => {
                     size="sm"
                     @click="startNew"
                 >
-                    Nieuw gesprek
+                    New conversation
                 </Button>
             </header>
 
@@ -82,13 +82,16 @@ const startNew = () => {
                     v-if="messages.length === 0"
                     class="rounded-xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground"
                 >
-                    Vertel Todai wat er moet gebeuren. Bijvoorbeeld: "morgen Remy
-                    bellen, en offerte TalentSquare afmaken deze week".
+                    Tell Todai what needs to happen. For example: "call Remy
+                    tomorrow, and finish the TalentSquare quote this week".
                 </div>
 
                 <template v-for="message in messages" :key="message.id">
                     <!-- Human voice: right-aligned solar. -->
-                    <div v-if="message.role === 'user'" class="flex justify-end">
+                    <div
+                        v-if="message.role === 'user'"
+                        class="flex justify-end"
+                    >
                         <div
                             class="max-w-[85%] rounded-2xl rounded-br-sm border border-solar/40 bg-solar-surface px-4 py-2.5 text-sm whitespace-pre-wrap text-foreground"
                         >
@@ -101,7 +104,9 @@ const startNew = () => {
                             voice="ai"
                             class="max-w-[85%] rounded-2xl rounded-bl-sm px-4 py-2.5"
                         >
-                            <p class="text-sm whitespace-pre-wrap text-foreground">
+                            <p
+                                class="text-sm whitespace-pre-wrap text-foreground"
+                            >
                                 {{ message.content }}
                             </p>
                         </VoiceCard>
@@ -113,21 +118,21 @@ const startNew = () => {
                     class="flex justify-start"
                     aria-live="polite"
                 >
-                    <VoiceCard voice="ai" class="rounded-2xl rounded-bl-sm px-4 py-2.5">
-                        <Meta>Todai denkt na…</Meta>
+                    <VoiceCard
+                        voice="ai"
+                        class="rounded-2xl rounded-bl-sm px-4 py-2.5"
+                    >
+                        <Meta>Todai is thinking…</Meta>
                     </VoiceCard>
                 </div>
             </div>
 
-            <form
-                class="mt-4 flex items-end gap-2"
-                @submit.prevent="send"
-            >
+            <form class="mt-4 flex items-end gap-2" @submit.prevent="send">
                 <textarea
                     v-model="form.message"
                     rows="1"
-                    placeholder="Typ een taak, of praat met Todai..."
-                    aria-label="Bericht aan Todai"
+                    placeholder="Type a task, or talk to Todai..."
+                    aria-label="Message to Todai"
                     class="max-h-40 flex-1 resize-none rounded-2xl border border-input bg-card px-4 py-2.5 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:border-aqua focus-visible:ring-2 focus-visible:ring-aqua/40 focus-visible:outline-none"
                     @keydown.enter.exact.prevent="send"
                 />
@@ -135,7 +140,7 @@ const startNew = () => {
                     type="submit"
                     class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-aqua text-aqua-foreground shadow-sm transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none disabled:opacity-40"
                     :disabled="form.processing || form.message.trim() === ''"
-                    aria-label="Verstuur"
+                    aria-label="Send"
                 >
                     <ArrowUp class="h-4 w-4" />
                 </button>
@@ -147,7 +152,7 @@ const startNew = () => {
             <h2
                 class="mb-3 font-mono text-xs tracking-wide text-aqua-strong uppercase"
             >
-                Aangemaakt
+                Created
             </h2>
             <ul class="space-y-2">
                 <li
@@ -166,7 +171,7 @@ const startNew = () => {
                 href="/inbox"
                 class="mt-3 inline-block text-xs text-muted-foreground hover:text-foreground"
             >
-                Naar de inbox →
+                To the inbox →
             </Link>
         </aside>
     </div>

@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import { router, usePage } from '@inertiajs/vue3';
-import { Calendar, Check, FolderInput, Lightbulb, MoreHorizontal, Pencil, Trash2 } from '@lucide/vue';
+import {
+    Calendar,
+    Check,
+    FolderInput,
+    Lightbulb,
+    MoreHorizontal,
+    Pencil,
+    Trash2,
+} from '@lucide/vue';
 import { computed, ref } from 'vue';
 import TaskController from '@/actions/App/Http/Controllers/TaskController';
 import Meta from '@/components/todai/Meta.vue';
@@ -49,7 +57,11 @@ const dueClass = computed(() => {
 });
 
 const toggle = () => {
-    router.patch(TaskController.toggle(props.task).url, {}, { preserveScroll: true });
+    router.patch(
+        TaskController.toggle(props.task).url,
+        {},
+        { preserveScroll: true },
+    );
 };
 
 const setDue = (due: string | null) => {
@@ -76,11 +88,17 @@ const moveTo = (projectId: string | null) => {
 };
 
 const suggest = () => {
-    router.patch(TaskController.suggest(props.task).url, {}, { preserveScroll: true });
+    router.patch(
+        TaskController.suggest(props.task).url,
+        {},
+        { preserveScroll: true },
+    );
 };
 
 const destroy = () => {
-    router.delete(TaskController.destroy(props.task).url, { preserveScroll: true });
+    router.delete(TaskController.destroy(props.task).url, {
+        preserveScroll: true,
+    });
 };
 </script>
 
@@ -97,7 +115,9 @@ const destroy = () => {
                     : 'border-muted-foreground/50 hover:border-solar'
             "
             :aria-pressed="task.completed_at !== null"
-            :aria-label="task.completed_at ? 'Markeer als niet voltooid' : 'Markeer als voltooid'"
+            :aria-label="
+                task.completed_at ? 'Mark as not done' : 'Mark as done'
+            "
             @click="toggle"
         >
             <Check v-if="task.completed_at" class="h-3 w-3" />
@@ -126,7 +146,9 @@ const destroy = () => {
                 >
                     <span
                         class="h-2 w-2 rounded-full"
-                        :style="{ backgroundColor: task.project.color ?? '#6B7280' }"
+                        :style="{
+                            backgroundColor: task.project.color ?? '#6B7280',
+                        }"
                         aria-hidden="true"
                     />
                     {{ task.project.name }}
@@ -136,39 +158,40 @@ const destroy = () => {
                     v-if="task.source === 'fireflies'"
                     class="text-aqua-strong"
                 >
-                    uit meeting{{ task.meeting_import?.title ? ` · ${task.meeting_import.title}` : '' }}
+                    from meeting{{
+                        task.meeting_import?.title
+                            ? ` · ${task.meeting_import.title}`
+                            : ''
+                    }}
                 </Meta>
             </div>
 
-            <SuggestionBanner
-                v-if="task.suggested_project_id"
-                :task="task"
-            />
+            <SuggestionBanner v-if="task.suggested_project_id" :task="task" />
         </div>
 
         <DropdownMenu>
             <DropdownMenuTrigger
                 class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-                aria-label="Taakacties"
+                aria-label="Task actions"
             >
                 <MoreHorizontal class="h-4 w-4" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" class="w-48">
                 <DropdownMenuItem @click="setDue(todayIso())">
-                    <Calendar class="mr-2 h-4 w-4" /> Vandaag
+                    <Calendar class="mr-2 h-4 w-4" /> Today
                 </DropdownMenuItem>
                 <DropdownMenuItem @click="setDue(tomorrowIso())">
-                    <Calendar class="mr-2 h-4 w-4" /> Morgen
+                    <Calendar class="mr-2 h-4 w-4" /> Tomorrow
                 </DropdownMenuItem>
                 <DropdownMenuItem v-if="task.due_date" @click="setDue(null)">
-                    <Calendar class="mr-2 h-4 w-4" /> Geen datum
+                    <Calendar class="mr-2 h-4 w-4" /> No date
                 </DropdownMenuItem>
 
                 <DropdownMenuSeparator />
 
                 <DropdownMenuSub>
                     <DropdownMenuSubTrigger>
-                        <FolderInput class="mr-2 h-4 w-4" /> Verplaats naar
+                        <FolderInput class="mr-2 h-4 w-4" /> Move to
                     </DropdownMenuSubTrigger>
                     <DropdownMenuSubContent>
                         <DropdownMenuItem
@@ -188,23 +211,20 @@ const destroy = () => {
                     </DropdownMenuSubContent>
                 </DropdownMenuSub>
 
-                <DropdownMenuItem
-                    v-if="!task.project_id"
-                    @click="suggest"
-                >
-                    <Lightbulb class="mr-2 h-4 w-4" /> Stel project voor
+                <DropdownMenuItem v-if="!task.project_id" @click="suggest">
+                    <Lightbulb class="mr-2 h-4 w-4" /> Suggest a project
                 </DropdownMenuItem>
 
                 <DropdownMenuSeparator />
 
                 <DropdownMenuItem @click="editing = true">
-                    <Pencil class="mr-2 h-4 w-4" /> Bewerken
+                    <Pencil class="mr-2 h-4 w-4" /> Edit
                 </DropdownMenuItem>
                 <DropdownMenuItem
                     class="text-destructive focus:text-destructive"
                     @click="destroy"
                 >
-                    <Trash2 class="mr-2 h-4 w-4" /> Verwijderen
+                    <Trash2 class="mr-2 h-4 w-4" /> Delete
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
@@ -212,7 +232,7 @@ const destroy = () => {
         <Dialog v-model:open="editing">
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Taak bewerken</DialogTitle>
+                    <DialogTitle>Edit task</DialogTitle>
                 </DialogHeader>
                 <TaskForm :task="task" @saved="editing = false" />
             </DialogContent>

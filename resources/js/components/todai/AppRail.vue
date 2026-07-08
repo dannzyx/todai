@@ -21,9 +21,9 @@ type RailItem = {
  * behind the command palette. No fixed left sidebar.
  */
 const items: RailItem[] = [
-    { label: 'Vandaag', href: '/', match: '/' },
+    { label: 'Today', href: '/', match: '/' },
     { label: 'Inbox', href: '/inbox', match: '/inbox' },
-    { label: 'Projecten', href: '/projecten', match: '/projecten' },
+    { label: 'Projects', href: '/projecten', match: '/projecten' },
     { label: 'Chat', href: '/chat', match: '/chat' },
 ];
 
@@ -65,7 +65,7 @@ const emit = defineEmits<{ (e: 'open-command'): void }>();
 
             <nav
                 class="hidden items-center gap-1 sm:flex"
-                aria-label="Hoofdnavigatie"
+                aria-label="Main navigation"
             >
                 <Link
                     v-for="item in items"
@@ -87,10 +87,10 @@ const emit = defineEmits<{ (e: 'open-command'): void }>();
                 <button
                     type="button"
                     class="flex items-center gap-2 rounded-md border border-border/70 px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-                    aria-label="Open opdrachtenpalet"
+                    aria-label="Open command palette"
                     @click="emit('open-command')"
                 >
-                    <span class="hidden sm:inline">Zoek of spring naar</span>
+                    <span class="hidden sm:inline">Search or jump to</span>
                     <kbd
                         class="font-mono text-[10px] tracking-tight text-muted-foreground"
                         >⌘K</kbd
@@ -102,7 +102,7 @@ const emit = defineEmits<{ (e: 'open-command'): void }>();
                 <DropdownMenu>
                     <DropdownMenuTrigger
                         class="flex items-center rounded-full focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-                        aria-label="Accountmenu"
+                        aria-label="Account menu"
                     >
                         <UserInfo :user="user" class="rounded-full" />
                     </DropdownMenuTrigger>
@@ -116,7 +116,7 @@ const emit = defineEmits<{ (e: 'open-command'): void }>();
         <!-- Mobile nav: the destinations collapse under the rail. -->
         <nav
             class="flex items-center gap-1 overflow-x-auto border-t border-border/60 px-4 py-2 sm:hidden"
-            aria-label="Hoofdnavigatie (mobiel)"
+            aria-label="Main navigation (mobile)"
         >
             <Link
                 v-for="item in items"

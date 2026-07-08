@@ -13,15 +13,15 @@ import type { NavItem } from '@/types';
 
 const sidebarNavItems: NavItem[] = [
     {
-        title: 'Profiel',
+        title: 'Profile',
         href: editProfile(),
     },
     {
-        title: 'Beveiliging',
+        title: 'Security',
         href: editSecurity(),
     },
     {
-        title: 'Weergave',
+        title: 'Appearance',
         href: editAppearance(),
     },
     {
@@ -36,8 +36,8 @@ const { isCurrentOrParentUrl } = useCurrentUrl();
 <template>
     <div class="px-4 py-6">
         <Heading
-            title="Instellingen"
-            description="Beheer je profiel en accountinstellingen"
+            title="Settings"
+            description="Manage your profile and account settings"
         />
 
         <div class="flex flex-col lg:flex-row lg:space-x-12">

@@ -51,7 +51,7 @@ class SendDailyReminders extends Command
             }
         });
 
-        $this->info("Herinneringen verstuurd: {$sent}.");
+        $this->info("Reminders sent: {$sent}.");
 
         return self::SUCCESS;
     }

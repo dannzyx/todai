@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import TaskItem from '@/components/todai/TaskItem.vue';
-import { bucketFor  } from '@/lib/dates';
-import type {DateBucket} from '@/lib/dates';
+import { bucketFor } from '@/lib/dates';
+import type { DateBucket } from '@/lib/dates';
 import type { Task } from '@/types';
 
 const props = withDefaults(
@@ -16,14 +16,16 @@ const props = withDefaults(
 const showCompleted = ref(false);
 
 const GROUP_ORDER: { key: DateBucket; label: string }[] = [
-    { key: 'overdue', label: 'Te laat' },
-    { key: 'today', label: 'Vandaag' },
-    { key: 'upcoming', label: 'Binnenkort' },
-    { key: 'none', label: 'Geen datum' },
+    { key: 'overdue', label: 'Overdue' },
+    { key: 'today', label: 'Today' },
+    { key: 'upcoming', label: 'Upcoming' },
+    { key: 'none', label: 'No date' },
 ];
 
 const open = computed(() => props.tasks.filter((task) => !task.completed_at));
-const completed = computed(() => props.tasks.filter((task) => task.completed_at));
+const completed = computed(() =>
+    props.tasks.filter((task) => task.completed_at),
+);
 
 const groups = computed(() =>
     GROUP_ORDER.map((group) => ({
@@ -68,7 +70,7 @@ const headerColor = (key: DateBucket): string => {
                 class="mb-3 text-xs font-semibold tracking-wide text-muted-foreground uppercase hover:text-foreground"
                 @click="showCompleted = !showCompleted"
             >
-                {{ showCompleted ? 'Verberg' : 'Toon' }} voltooid ({{
+                {{ showCompleted ? 'Hide' : 'Show' }} completed ({{
                     completed.length
                 }})
             </button>

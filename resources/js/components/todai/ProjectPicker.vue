@@ -30,10 +30,10 @@ const selected = computed<string>({
 <template>
     <Select v-model="selected">
         <SelectTrigger :id="id" class="w-full">
-            <SelectValue placeholder="Kies een project" />
+            <SelectValue placeholder="Choose a project" />
         </SelectTrigger>
         <SelectContent>
-            <SelectItem :value="INBOX">Inbox (geen project)</SelectItem>
+            <SelectItem :value="INBOX">Inbox (no project)</SelectItem>
             <SelectItem
                 v-for="project in projects"
                 :key="project.id"

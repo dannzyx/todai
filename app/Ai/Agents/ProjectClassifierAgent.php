@@ -30,17 +30,17 @@ class ProjectClassifierAgent implements Agent, HasStructuredOutput
     public function instructions(): Stringable|string
     {
         return <<<'INSTRUCTIONS'
-        Je bent Todai's classificatie-assistent. Je krijgt één taak en een
-        genummerde lijst met bestaande projecten van de gebruiker. Kies het
-        project dat het beste bij de taak past.
+        You are Todai's classification assistant. You are given a single task and a
+        numbered list of the user's existing projects. Pick the project that best
+        fits the task.
 
-        Regels:
-        - Kies alleen uit de aangeboden projecten. Verzin nooit een project.
-        - Past er geen enkel project echt goed? Geef dan null terug voor
-          project_index en confidence "low".
-        - "project_index" is het nummer uit de lijst (1-gebaseerd), of null.
-        - "confidence" is low, medium of high.
-        - "reasoning" is één korte zin in het Nederlands die je keuze uitlegt.
+        Rules:
+        - Only choose from the projects provided. Never invent a project.
+        - If no project is a genuinely good fit, return null for project_index and
+          confidence "low".
+        - "project_index" is the number from the list (1-based), or null.
+        - "confidence" is low, medium or high.
+        - "reasoning" is one short sentence in English explaining your choice.
         INSTRUCTIONS;
     }
 

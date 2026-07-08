@@ -30,10 +30,10 @@ trait TaskValidationRules
     protected function taskMessages(): array
     {
         return [
-            'title.required' => 'Geef de taak een titel.',
-            'title.max' => 'De titel mag maximaal 255 tekens bevatten.',
-            'due_date.date' => 'Kies een geldige datum.',
-            'project_id.exists' => 'Dit project bestaat niet of is niet van jou.',
+            'title.required' => 'Give the task a title.',
+            'title.max' => 'The title may be at most 255 characters.',
+            'due_date.date' => 'Choose a valid date.',
+            'project_id.exists' => 'This project does not exist or is not yours.',
         ];
     }
 }

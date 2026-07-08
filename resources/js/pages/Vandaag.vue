@@ -16,12 +16,12 @@ const isEmpty = computed(() => tasks.value.length === 0);
 </script>
 
 <template>
-    <Head title="Vandaag" />
+    <Head title="Today" />
 
     <div class="space-y-10">
         <header>
             <p class="font-mono text-xs tracking-tight text-muted-foreground">
-                Vandaag
+                Today
             </p>
             <h1
                 class="mt-1 font-display text-4xl font-semibold tracking-tight capitalize sm:text-5xl"
@@ -34,7 +34,7 @@ const isEmpty = computed(() => tasks.value.length === 0);
             v-if="isEmpty"
             class="rounded-xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground"
         >
-            Niets gepland vandaag.
+            Nothing scheduled today.
         </div>
 
         <TaskList v-else :tasks="tasks" :show-project="true" />

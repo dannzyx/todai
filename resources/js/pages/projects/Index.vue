@@ -34,40 +34,40 @@ const unarchive = (project: Project) => {
 const taskCountLabel = (count: number | undefined): string => {
     const value = count ?? 0;
 
-    return value === 1 ? '1 open taak' : `${value} open taken`;
+    return value === 1 ? '1 open task' : `${value} open tasks`;
 };
 </script>
 
 <template>
-    <Head title="Projecten" />
+    <Head title="Projects" />
 
     <div class="space-y-10">
         <header class="space-y-1">
             <h1 class="font-display text-4xl font-semibold tracking-tight">
-                Projecten
+                Projects
             </h1>
             <p class="text-sm text-muted-foreground">
-                Bundel je taken in projecten. Gearchiveerde projecten verdwijnen
-                uit de keuzelijsten, hun taken blijven bestaan.
+                Bundle your tasks into projects. Archived projects disappear
+                from the pickers, but their tasks stay around.
             </p>
         </header>
 
         <section
             class="rounded-xl border border-border bg-card p-5 shadow-sm"
-            aria-label="Nieuw project"
+            aria-label="New project"
         >
             <h2 class="mb-4 text-sm font-semibold text-foreground">
-                Nieuw project
+                New project
             </h2>
             <ProjectForm />
         </section>
 
-        <section aria-label="Actieve projecten" class="space-y-3">
+        <section aria-label="Active projects" class="space-y-3">
             <div
                 v-if="active.length === 0"
                 class="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground"
             >
-                Nog geen projecten. Maak er hierboven één aan.
+                No projects yet. Create one above.
             </div>
 
             <ul v-else class="space-y-2">
@@ -99,22 +99,19 @@ const taskCountLabel = (count: number | undefined): string => {
                         @click="archive(project)"
                     >
                         <Archive class="mr-1.5 h-4 w-4" />
-                        Archiveer
+                        Archive
                     </Button>
                 </li>
             </ul>
         </section>
 
-        <section
-            v-if="archived.length > 0"
-            aria-label="Gearchiveerde projecten"
-        >
+        <section v-if="archived.length > 0" aria-label="Archived projects">
             <button
                 type="button"
                 class="mb-3 text-sm font-medium text-muted-foreground hover:text-foreground"
                 @click="showArchived = !showArchived"
             >
-                {{ showArchived ? 'Verberg' : 'Toon' }} archief ({{
+                {{ showArchived ? 'Hide' : 'Show' }} archive ({{
                     archived.length
                 }})
             </button>
@@ -139,7 +136,7 @@ const taskCountLabel = (count: number | undefined): string => {
                         @click="unarchive(project)"
                     >
                         <ArchiveRestore class="mr-1.5 h-4 w-4" />
-                        Herstel
+                        Restore
                     </Button>
                 </li>
             </ul>

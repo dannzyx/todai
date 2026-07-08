@@ -10,9 +10,9 @@ import type { SuggestionConfidence, Task } from '@/types';
 const props = defineProps<{ task: Task }>();
 
 const confidenceLabel: Record<SuggestionConfidence, string> = {
-    low: 'lage zekerheid',
-    medium: 'redelijke zekerheid',
-    high: 'hoge zekerheid',
+    low: 'low confidence',
+    medium: 'medium confidence',
+    high: 'high confidence',
 };
 
 const projectName = computed(() => props.task.suggested_project?.name ?? '');
@@ -39,7 +39,7 @@ const dismiss = () => {
         <div class="flex flex-wrap items-center justify-between gap-2">
             <div class="min-w-0">
                 <p class="text-sm text-foreground">
-                    Todai stelt voor:
+                    Todai suggests:
                     <span class="font-medium text-aqua-strong">{{
                         projectName
                     }}</span>
@@ -53,14 +53,14 @@ const dismiss = () => {
             </div>
             <div class="flex shrink-0 items-center gap-2">
                 <Button size="sm" variant="ghost" @click="dismiss">
-                    Negeren
+                    Dismiss
                 </Button>
                 <Button
                     size="sm"
                     class="bg-aqua text-aqua-foreground hover:bg-aqua/90"
                     @click="accept"
                 >
-                    Toewijzen
+                    Assign
                 </Button>
             </div>
         </div>

@@ -37,9 +37,9 @@ class StoreProjectRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => 'Geef het project een naam.',
-            'name.max' => 'De naam mag maximaal 255 tekens bevatten.',
-            'description.max' => 'De omschrijving mag maximaal 2000 tekens bevatten.',
+            'name.required' => 'Give the project a name.',
+            'name.max' => 'The name may be at most 255 characters.',
+            'description.max' => 'The description may be at most 2000 characters.',
         ];
     }
 }

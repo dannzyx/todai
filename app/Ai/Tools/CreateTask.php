@@ -28,9 +28,9 @@ class CreateTask implements Tool
      */
     public function description(): Stringable|string
     {
-        return 'Maak precies één taak aan voor de gebruiker. Roep dit meerdere '
-            .'keren aan als er meerdere taken zijn. Vul project alleen in als de '
-            .'gebruiker duidelijk een bestaand project noemt.';
+        return 'Create exactly one task for the user. Call this multiple times if '
+            .'there are multiple tasks. Only fill project when the user clearly '
+            .'names an existing project.';
     }
 
     /**
@@ -55,7 +55,7 @@ class CreateTask implements Tool
         $title = trim((string) ($data['title'] ?? ''));
 
         if ($title === '') {
-            return 'Geen taak aangemaakt: er ontbrak een titel.';
+            return 'No task created: a title was missing.';
         }
 
         $project = $this->resolveProject($data['project'] ?? null);
@@ -77,10 +77,10 @@ class CreateTask implements Tool
         $this->createdTasks->push($task);
 
         return sprintf(
-            'Taak aangemaakt: "%s"%s%s.',
+            'Created task: "%s"%s%s.',
             $title,
-            $dueDate ? " (deadline {$dueDate})" : '',
-            $project ? " in project {$project->name}" : ' in de inbox',
+            $dueDate ? " (due {$dueDate})" : '',
+            $project ? " in project {$project->name}" : ' in the inbox',
         );
     }
 

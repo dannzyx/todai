@@ -42,11 +42,11 @@ class DailyTaskReminder extends Notification
         $name = $notifiable instanceof User ? $notifiable->name : null;
 
         $mail = (new MailMessage)
-            ->subject('Je taken voor vandaag')
-            ->greeting('Goedemorgen'.($name ? ", {$name}" : '').'!');
+            ->subject('Your tasks for today')
+            ->greeting('Good morning'.($name ? ", {$name}" : '').'!');
 
         if ($this->overdue->isNotEmpty()) {
-            $mail->line("**Te laat ({$this->overdue->count()})**");
+            $mail->line("**Overdue ({$this->overdue->count()})**");
             foreach ($this->groupByProject($this->overdue) as $project => $titles) {
                 $mail->line("_{$project}_");
                 foreach ($titles as $title) {
@@ -56,7 +56,7 @@ class DailyTaskReminder extends Notification
         }
 
         if ($this->dueToday->isNotEmpty()) {
-            $mail->line("**Vandaag ({$this->dueToday->count()})**");
+            $mail->line("**Today ({$this->dueToday->count()})**");
             foreach ($this->groupByProject($this->dueToday) as $project => $titles) {
                 $mail->line("_{$project}_");
                 foreach ($titles as $title) {
@@ -66,12 +66,12 @@ class DailyTaskReminder extends Notification
         }
 
         if ($this->overdue->isEmpty() && $this->dueToday->isEmpty()) {
-            $mail->line('Niets gepland vandaag.');
+            $mail->line('Nothing scheduled today.');
         }
 
         return $mail
             ->action('Open Todai', url('/'))
-            ->line('Fijne dag!');
+            ->line('Have a great day!');
     }
 
     /**

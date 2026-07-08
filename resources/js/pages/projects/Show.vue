@@ -34,7 +34,7 @@ const toggleArchive = () => {
             class="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
         >
             <ArrowLeft class="h-4 w-4" />
-            Alle projecten
+            All projects
         </Link>
 
         <header class="flex items-start justify-between gap-4">
@@ -50,7 +50,7 @@ const toggleArchive = () => {
                     >
                         {{ project.name }}
                     </h1>
-                    <Meta>{{ project.open_tasks_count ?? 0 }} open taken</Meta>
+                    <Meta>{{ project.open_tasks_count ?? 0 }} open tasks</Meta>
                 </div>
             </div>
 
@@ -59,12 +59,12 @@ const toggleArchive = () => {
                     :is="isArchived() ? ArchiveRestore : Archive"
                     class="mr-1.5 h-4 w-4"
                 />
-                {{ isArchived() ? 'Herstel' : 'Archiveer' }}
+                {{ isArchived() ? 'Restore' : 'Archive' }}
             </Button>
         </header>
 
-        <section aria-label="Taken" class="space-y-4">
-            <h2 class="text-sm font-semibold text-foreground">Taken</h2>
+        <section aria-label="Tasks" class="space-y-4">
+            <h2 class="text-sm font-semibold text-foreground">Tasks</h2>
 
             <div class="rounded-xl border border-border bg-card p-4 shadow-sm">
                 <TaskForm :default-project-id="project.id" />
@@ -74,19 +74,19 @@ const toggleArchive = () => {
                 v-if="tasks.length === 0"
                 class="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground"
             >
-                Nog geen taken in dit project.
+                No tasks in this project yet.
             </div>
             <TaskList v-else :tasks="tasks" :show-project="false" />
         </section>
 
         <section
             class="rounded-xl border border-border bg-card p-5 shadow-sm"
-            aria-label="Project bewerken"
+            aria-label="Edit project"
         >
             <h2 class="mb-4 text-sm font-semibold text-foreground">
-                Project bewerken
+                Edit project
             </h2>
-            <ProjectForm :project="project" submit-label="Opslaan" />
+            <ProjectForm :project="project" submit-label="Save" />
         </section>
     </div>
 </template>

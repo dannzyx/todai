@@ -40,7 +40,7 @@ class ProjectController extends Controller
 
         $request->user()->projects()->create($request->validated());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Project aangemaakt.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Project created.']);
 
         return to_route('projects.index');
     }
@@ -76,7 +76,7 @@ class ProjectController extends Controller
 
         $project->update($request->validated());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Project bijgewerkt.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Project updated.']);
 
         return back();
     }
@@ -90,7 +90,7 @@ class ProjectController extends Controller
 
         $project->update(['archived_at' => now()]);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Project gearchiveerd.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Project archived.']);
 
         return back();
     }
@@ -104,7 +104,7 @@ class ProjectController extends Controller
 
         $project->update(['archived_at' => null]);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Project hersteld.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Project restored.']);
 
         return back();
     }

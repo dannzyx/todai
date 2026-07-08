@@ -1,28 +1,43 @@
 import type { Task } from '@/types';
 
 const MONTHS_SHORT = [
-    'jan',
-    'feb',
-    'mrt',
-    'apr',
-    'mei',
-    'jun',
-    'jul',
-    'aug',
-    'sep',
-    'okt',
-    'nov',
-    'dec',
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+];
+
+const MONTHS_LONG = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
 ];
 
 const WEEKDAYS = [
-    'zondag',
-    'maandag',
-    'dinsdag',
-    'woensdag',
-    'donderdag',
-    'vrijdag',
-    'zaterdag',
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
 ];
 
 /** Parse an ISO date (or datetime) into a local Date at midnight. */
@@ -66,31 +81,31 @@ export const bucketFor = (task: Task): DateBucket => {
     return 'upcoming';
 };
 
-/** Short mono-friendly date, e.g. "8 jul". */
+/** Short mono-friendly date, e.g. "8 Jul". */
 export const shortDate = (iso: string): string => {
     const date = parseDate(iso);
 
     return `${date.getDate()} ${MONTHS_SHORT[date.getMonth()]}`;
 };
 
-/** Human due label in Dutch: "vandaag", "morgen", "gisteren", weekday, or date. */
+/** Human due label: "today", "tomorrow", "yesterday", weekday, or date. */
 export const dueLabel = (iso: string): string => {
     const delta = dayDelta(iso);
 
     if (delta === 0) {
-        return 'vandaag';
+        return 'today';
     }
 
     if (delta === 1) {
-        return 'morgen';
+        return 'tomorrow';
     }
 
     if (delta === -1) {
-        return 'gisteren';
+        return 'yesterday';
     }
 
     if (delta < -1) {
-        return `${Math.abs(delta)} dagen te laat`;
+        return `${Math.abs(delta)} days overdue`;
     }
 
     if (delta > 1 && delta < 7) {
@@ -100,25 +115,11 @@ export const dueLabel = (iso: string): string => {
     return shortDate(iso);
 };
 
-/** Full display date for the Vandaag hero, e.g. "woensdag 8 juli". */
+/** Full display date for the Vandaag hero, e.g. "Wednesday 8 July". */
 export const heroDate = (iso: string): string => {
-    const monthsLong = [
-        'januari',
-        'februari',
-        'maart',
-        'april',
-        'mei',
-        'juni',
-        'juli',
-        'augustus',
-        'september',
-        'oktober',
-        'november',
-        'december',
-    ];
     const date = parseDate(iso);
 
-    return `${WEEKDAYS[date.getDay()]} ${date.getDate()} ${monthsLong[date.getMonth()]}`;
+    return `${WEEKDAYS[date.getDay()]} ${date.getDate()} ${MONTHS_LONG[date.getMonth()]}`;
 };
 
 export const todayIso = (): string => {

@@ -42,15 +42,15 @@ const submit = () => {
             <input
                 v-model="form.title"
                 type="text"
-                placeholder="Typ een taak, of praat met Todai..."
-                aria-label="Nieuwe taak"
+                placeholder="Type a task, or talk to Todai..."
+                aria-label="New task"
                 class="flex-1 rounded-full border border-input bg-card px-4 py-2.5 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:border-solar focus-visible:ring-2 focus-visible:ring-solar/40 focus-visible:outline-none"
             />
             <button
                 type="submit"
                 class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-solar text-solar-foreground shadow-sm transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none disabled:opacity-40"
                 :disabled="form.processing || form.title.trim() === ''"
-                aria-label="Taak toevoegen"
+                aria-label="Add task"
             >
                 <ArrowUp class="h-4 w-4" />
             </button>

@@ -85,7 +85,7 @@ class TaskController extends Controller
             ClassifyTaskProject::dispatch($task);
         }
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Taak toegevoegd.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Task added.']);
 
         return back();
     }
@@ -99,7 +99,7 @@ class TaskController extends Controller
 
         $task->update($request->validated());
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Taak bijgewerkt.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Task updated.']);
 
         return back();
     }
@@ -113,7 +113,7 @@ class TaskController extends Controller
 
         $task->update(['project_id' => $request->validated('project_id')]);
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Taak verplaatst.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Task moved.']);
 
         return back();
     }
@@ -173,7 +173,7 @@ class TaskController extends Controller
                 'suggestion_reasoning' => null,
             ]);
 
-            Inertia::flash('toast', ['type' => 'success', 'message' => 'Taak toegewezen.']);
+            Inertia::flash('toast', ['type' => 'success', 'message' => 'Task assigned.']);
         }
 
         return back();
@@ -204,7 +204,7 @@ class TaskController extends Controller
 
         $task->delete();
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => 'Taak verwijderd.']);
+        Inertia::flash('toast', ['type' => 'success', 'message' => 'Task deleted.']);
 
         return back();
     }

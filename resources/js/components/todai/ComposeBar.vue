@@ -1,0 +1,50 @@
+<script setup lang="ts">
+import { useForm } from '@inertiajs/vue3';
+import { ArrowUp } from '@lucide/vue';
+import TaskController from '@/actions/App/Http/Controllers/TaskController';
+
+/**
+ * The persistent compose bar — Todai's signature interaction. In this phase it
+ * does quick-add only: type a task and it drops into the Inbox. Phase 4 upgrades
+ * it to also open a conversation with Todai.
+ */
+const form = useForm<{ title: string }>({ title: '' });
+
+const submit = () => {
+    if (form.title.trim() === '') {
+        return;
+    }
+
+    form.post(TaskController.store().url, {
+        preserveScroll: true,
+        onSuccess: () => form.reset(),
+    });
+};
+</script>
+
+<template>
+    <div
+        class="sticky bottom-0 z-30 border-t border-border/70 bg-background/85 backdrop-blur"
+    >
+        <form
+            class="mx-auto flex max-w-3xl items-center gap-2 px-4 py-3 sm:px-6"
+            @submit.prevent="submit"
+        >
+            <input
+                v-model="form.title"
+                type="text"
+                placeholder="Typ een taak, of praat met Todai..."
+                aria-label="Nieuwe taak"
+                class="flex-1 rounded-full border border-input bg-card px-4 py-2.5 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:border-solar focus-visible:ring-2 focus-visible:ring-solar/40 focus-visible:outline-none"
+            />
+            <button
+                type="submit"
+                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-solar text-solar-foreground shadow-sm transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none disabled:opacity-40"
+                :disabled="form.processing || form.title.trim() === ''"
+                aria-label="Taak toevoegen"
+            >
+                <ArrowUp class="h-4 w-4" />
+            </button>
+        </form>
+    </div>
+</template>

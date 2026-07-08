@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Project;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -41,6 +42,11 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            // Active projects power the compose bar, command palette and project
+            // picker everywhere, so they are shared on every authenticated visit.
+            'activeProjects' => fn () => $request->user()
+                ? $request->user()->projects()->active()->orderBy('name')->get(['id', 'name', 'color'])
+                : [],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }

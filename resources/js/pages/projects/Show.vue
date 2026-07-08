@@ -4,11 +4,14 @@ import { Archive, ArchiveRestore, ArrowLeft } from '@lucide/vue';
 import ProjectController from '@/actions/App/Http/Controllers/ProjectController';
 import Meta from '@/components/todai/Meta.vue';
 import ProjectForm from '@/components/todai/ProjectForm.vue';
+import TaskForm from '@/components/todai/TaskForm.vue';
+import TaskList from '@/components/todai/TaskList.vue';
 import { Button } from '@/components/ui/button';
-import type { Project } from '@/types';
+import type { Project, Task } from '@/types';
 
 const props = defineProps<{
     project: Project;
+    tasks: Task[];
 }>();
 
 const isArchived = () => props.project.archived_at !== null;
@@ -60,14 +63,30 @@ const toggleArchive = () => {
             </Button>
         </header>
 
+        <section aria-label="Taken" class="space-y-4">
+            <h2 class="text-sm font-semibold text-foreground">Taken</h2>
+
+            <div class="rounded-xl border border-border bg-card p-4 shadow-sm">
+                <TaskForm :default-project-id="project.id" />
+            </div>
+
+            <div
+                v-if="tasks.length === 0"
+                class="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground"
+            >
+                Nog geen taken in dit project.
+            </div>
+            <TaskList v-else :tasks="tasks" :show-project="false" />
+        </section>
+
         <section
             class="rounded-xl border border-border bg-card p-5 shadow-sm"
             aria-label="Project bewerken"
         >
-            <h2 class="mb-4 text-sm font-semibold text-foreground">Bewerken</h2>
+            <h2 class="mb-4 text-sm font-semibold text-foreground">
+                Project bewerken
+            </h2>
             <ProjectForm :project="project" submit-label="Opslaan" />
         </section>
-
-        <!-- Taken binnen dit project verschijnen hier vanaf fase 2. -->
     </div>
 </template>

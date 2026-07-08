@@ -52,8 +52,18 @@ class ProjectController extends Controller
     {
         Gate::authorize('view', $project);
 
+        $project->loadCount(['tasks as open_tasks_count' => fn ($query) => $query->whereNull('completed_at')]);
+
+        $tasks = $project->tasks()
+            ->orderByRaw('completed_at is null desc')
+            ->orderByRaw('due_date is null')
+            ->orderBy('due_date')
+            ->latest('created_at')
+            ->get();
+
         return Inertia::render('projects/Show', [
-            'project' => $project->loadCount(['tasks as open_tasks_count' => fn ($query) => $query->whereNull('completed_at')]),
+            'project' => $project,
+            'tasks' => $tasks,
         ]);
     }
 

@@ -1,12 +1,32 @@
 <?php
 
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\TaskController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
-Route::inertia('/', 'Welcome')->name('home');
+// Vandaag is the landing for authenticated users; guests see the marketing page.
+Route::get('/', function (Request $request) {
+    if ($request->user()) {
+        return app(TaskController::class)->today($request);
+    }
+
+    return Inertia::render('Welcome');
+})->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'Dashboard')->name('dashboard');
+    // Post-login landing (Fortify redirects here) also shows Vandaag.
+    Route::get('dashboard', [TaskController::class, 'today'])->name('dashboard');
+
+    // Tasks (Dutch URLs, English route names).
+    Route::get('inbox', [TaskController::class, 'inbox'])->name('tasks.inbox');
+    Route::post('taken', [TaskController::class, 'store'])->name('tasks.store');
+    Route::put('taken/{task}', [TaskController::class, 'update'])->name('tasks.update');
+    Route::patch('taken/{task}/verplaatsen', [TaskController::class, 'move'])->name('tasks.move');
+    Route::patch('taken/{task}/datum', [TaskController::class, 'setDueDate'])->name('tasks.due-date');
+    Route::patch('taken/{task}/status', [TaskController::class, 'toggle'])->name('tasks.toggle');
+    Route::delete('taken/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
 
     // Projects (Dutch URLs, English route names).
     Route::get('projecten', [ProjectController::class, 'index'])->name('projects.index');

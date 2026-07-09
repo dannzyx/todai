@@ -60,18 +60,20 @@ class MeetingSuggestionAgent implements Agent, HasStructuredOutput
      */
     public function schema(JsonSchema $schema): array
     {
+        // OpenAI strict structured outputs require every property in `required`;
+        // optional fields are expressed as required + nullable.
         return [
             'project' => $schema->object(fn ($schema) => [
-                'existing_index' => $schema->integer()->nullable(),
-                'new_project_name' => $schema->string()->nullable(),
+                'existing_index' => $schema->integer()->nullable()->required(),
+                'new_project_name' => $schema->string()->nullable()->required(),
                 'confidence' => $schema->string()->enum(['low', 'medium', 'high'])->required(),
                 'reasoning' => $schema->string()->required(),
             ])->required(),
             'tasks' => $schema->array()->items(
                 $schema->object(fn ($schema) => [
                     'title' => $schema->string()->required(),
-                    'description' => $schema->string()->nullable(),
-                    'due_date' => $schema->string()->nullable(), // YYYY-MM-DD
+                    'description' => $schema->string()->nullable()->required(),
+                    'due_date' => $schema->string()->nullable()->required(), // YYYY-MM-DD
                 ])
             )->required(),
         ];

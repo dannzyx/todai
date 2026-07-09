@@ -49,8 +49,10 @@ class ProjectClassifierAgent implements Agent, HasStructuredOutput
      */
     public function schema(JsonSchema $schema): array
     {
+        // OpenAI strict structured outputs require every property in `required`;
+        // optional fields are expressed as required + nullable.
         return [
-            'project_index' => $schema->integer()->nullable(),
+            'project_index' => $schema->integer()->nullable()->required(),
             'confidence' => $schema->string()->enum(['low', 'medium', 'high'])->required(),
             'reasoning' => $schema->string()->required(),
         ];

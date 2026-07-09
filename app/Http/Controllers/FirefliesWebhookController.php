@@ -61,8 +61,13 @@ class FirefliesWebhookController extends Controller
             abort(401);
         }
 
-        // Only act on the transcription-complete event; acknowledge the rest.
-        if (! str_contains(strtolower($eventType), 'transcription') || $meetingId === '') {
+        // Act once a meeting is ready to process — Fireflies signals this with a
+        // transcription-completed or a summary event (e.g. "meeting.summarized").
+        // Everything else (test pings, other lifecycle events) is acknowledged.
+        $event = strtolower($eventType);
+        $meetingReady = str_contains($event, 'transcription') || str_contains($event, 'summar');
+
+        if (! $meetingReady || $meetingId === '') {
             $this->record($request, WebhookOutcome::Ignored, $integration->user_id);
 
             return response()->json(['ignored' => true]);

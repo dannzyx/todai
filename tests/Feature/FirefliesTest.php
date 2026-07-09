@@ -112,6 +112,21 @@ it('accepts a transcription event using snake_case field names', function () {
     expect(WebhookEvent::sole()->outcome)->toBe(WebhookOutcome::Accepted);
 });
 
+it('accepts a meeting.summarized event', function () {
+    Queue::fake();
+    $integration = FirefliesIntegration::factory()->create();
+
+    // Fireflies fires "meeting.summarized" once the summary is ready.
+    $this->postJson("/webhooks/fireflies/{$integration->webhook_token}", [
+        'event' => 'meeting.summarized',
+        'meeting_id' => '01KX3N11Z7AEPE2MD6VFC960VC',
+    ])->assertOk();
+
+    expect(Meeting::where('fireflies_meeting_id', '01KX3N11Z7AEPE2MD6VFC960VC')->count())->toBe(1);
+    Queue::assertPushed(ProcessFirefliesMeeting::class, 1);
+    expect(WebhookEvent::sole()->outcome)->toBe(WebhookOutcome::Accepted);
+});
+
 it('records a rejected webhook for an unknown token', function () {
     $this->postJson('/webhooks/fireflies/nope', firefliesPayload())->assertNotFound();
 

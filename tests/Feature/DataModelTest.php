@@ -1,9 +1,9 @@
 <?php
 
-use App\Enums\MeetingImportStatus;
+use App\Enums\MeetingStatus;
 use App\Enums\SuggestionConfidence;
 use App\Enums\TaskSource;
-use App\Models\MeetingImport;
+use App\Models\Meeting;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
@@ -62,17 +62,17 @@ it('scopes active projects away from archived ones', function () {
         ->and(Project::count())->toBe(2);
 });
 
-it('relates meeting imports to their tasks', function () {
+it('relates meetings to their tasks', function () {
     $user = User::factory()->create();
-    $import = MeetingImport::factory()->for($user)->processed()->create();
+    $meeting = Meeting::factory()->for($user)->ready()->create();
     $task = Task::factory()->for($user)->create([
         'source' => TaskSource::Fireflies,
-        'meeting_import_id' => $import->id,
+        'meeting_id' => $meeting->id,
     ]);
 
-    expect($import->status)->toBe(MeetingImportStatus::Processed)
-        ->and($import->tasks)->toHaveCount(1)
-        ->and($task->meetingImport->id)->toBe($import->id);
+    expect($meeting->status)->toBe(MeetingStatus::Ready)
+        ->and($meeting->tasks)->toHaveCount(1)
+        ->and($task->meeting->id)->toBe($meeting->id);
 });
 
 it('exposes a pending ai suggestion', function () {

@@ -2,6 +2,12 @@ export type SuggestionConfidence = 'low' | 'medium' | 'high';
 
 export type TaskSource = 'manual' | 'chat' | 'fireflies';
 
+export type MeetingSource = 'fireflies' | 'manual';
+
+export type MeetingStatus = 'draft' | 'processing' | 'ready' | 'failed';
+
+export type SuggestionStatus = 'pending' | 'accepted' | 'dismissed';
+
 export type Project = {
     id: string;
     name: string;
@@ -13,11 +19,42 @@ export type Project = {
     updated_at: string;
 };
 
-export type MeetingImport = {
+export type TaskSuggestion = {
     id: string;
+    meeting_id: string;
+    title: string;
+    description: string | null;
+    due_date: string | null;
+    status: SuggestionStatus;
+    accepted_task_id: string | null;
+    created_at: string;
+    updated_at: string;
+};
+
+export type Meeting = {
+    id: string;
+    source: MeetingSource;
+    fireflies_meeting_id: string | null;
     title: string | null;
     meeting_date: string | null;
-    status: 'pending' | 'processed' | 'failed';
+    notes: string | null;
+    summary: string | null;
+    action_items: string | null;
+    transcript: string | null;
+    project_id: string | null;
+    suggested_project_id: string | null;
+    suggested_project_name: string | null;
+    suggestion_confidence: SuggestionConfidence | null;
+    suggestion_reasoning: string | null;
+    status: MeetingStatus;
+    error: string | null;
+    processed_at: string | null;
+    project?: Project | null;
+    suggested_project?: Project | null;
+    task_suggestions?: TaskSuggestion[];
+    pending_suggestions_count?: number;
+    created_at: string;
+    updated_at: string;
 };
 
 export type Task = {
@@ -28,13 +65,13 @@ export type Task = {
     due_date: string | null;
     completed_at: string | null;
     source: TaskSource;
-    meeting_import_id: string | null;
+    meeting_id: string | null;
     suggested_project_id: string | null;
     suggestion_confidence: SuggestionConfidence | null;
     suggestion_reasoning: string | null;
     project?: Project | null;
     suggested_project?: Project | null;
-    meeting_import?: MeetingImport | null;
+    meeting?: Meeting | null;
     created_at: string;
     updated_at: string;
 };

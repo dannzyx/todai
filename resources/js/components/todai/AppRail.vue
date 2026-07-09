@@ -24,6 +24,7 @@ const items: RailItem[] = [
     { label: 'Today', href: '/', match: '/' },
     { label: 'Inbox', href: '/inbox', match: '/inbox' },
     { label: 'Projects', href: '/projecten', match: '/projecten' },
+    { label: 'Meetings', href: '/vergaderingen', match: '/vergaderingen' },
     { label: 'Chat', href: '/chat', match: '/chat' },
 ];
 

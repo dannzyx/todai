@@ -73,6 +73,16 @@ class User extends Authenticatable implements PasskeyUser
     }
 
     /**
+     * The meetings that belong to the user.
+     *
+     * @return HasMany<Meeting, $this>
+     */
+    public function meetings(): HasMany
+    {
+        return $this->hasMany(Meeting::class);
+    }
+
+    /**
      * The user's Fireflies integration, if connected.
      *
      * @return HasOne<FirefliesIntegration, $this>

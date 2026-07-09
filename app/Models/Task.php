@@ -21,7 +21,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $due_date
  * @property Carbon|null $completed_at
  * @property TaskSource $source
- * @property string|null $meeting_import_id
+ * @property string|null $meeting_id
  * @property string|null $suggested_project_id
  * @property SuggestionConfidence|null $suggestion_confidence
  * @property string|null $suggestion_reasoning
@@ -46,7 +46,7 @@ class Task extends Model
         'due_date',
         'completed_at',
         'source',
-        'meeting_import_id',
+        'meeting_id',
         'suggested_project_id',
         'suggestion_confidence',
         'suggestion_reasoning',
@@ -98,13 +98,13 @@ class Task extends Model
     }
 
     /**
-     * The meeting import this task originated from.
+     * The meeting this task originated from.
      *
-     * @return BelongsTo<MeetingImport, $this>
+     * @return BelongsTo<Meeting, $this>
      */
-    public function meetingImport(): BelongsTo
+    public function meeting(): BelongsTo
     {
-        return $this->belongsTo(MeetingImport::class);
+        return $this->belongsTo(Meeting::class);
     }
 
     /**

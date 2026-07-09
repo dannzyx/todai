@@ -1,11 +1,17 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Archive, ArchiveRestore } from '@lucide/vue';
+import { Archive, ArchiveRestore, Plus } from '@lucide/vue';
 import { ref } from 'vue';
 import ProjectController from '@/actions/App/Http/Controllers/ProjectController';
 import Meta from '@/components/todai/Meta.vue';
 import ProjectForm from '@/components/todai/ProjectForm.vue';
 import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import type { Project } from '@/types';
 
 defineProps<{
@@ -14,6 +20,7 @@ defineProps<{
 }>();
 
 const showArchived = ref(false);
+const creating = ref(false);
 
 const archive = (project: Project) => {
     router.patch(
@@ -42,25 +49,21 @@ const taskCountLabel = (count: number | undefined): string => {
     <Head title="Projects" />
 
     <div class="space-y-10">
-        <header class="space-y-1">
-            <h1 class="font-display text-4xl font-semibold tracking-tight">
-                Projects
-            </h1>
-            <p class="text-sm text-muted-foreground">
-                Bundle your tasks into projects. Archived projects disappear
-                from the pickers, but their tasks stay around.
-            </p>
-        </header>
-
-        <section
-            class="rounded-xl border border-border bg-card p-5 shadow-sm"
-            aria-label="New project"
-        >
-            <h2 class="mb-4 text-sm font-semibold text-foreground">
+        <header class="flex items-start justify-between gap-4">
+            <div class="space-y-1">
+                <h1 class="font-display text-4xl font-semibold tracking-tight">
+                    Projects
+                </h1>
+                <p class="text-sm text-muted-foreground">
+                    Bundle your tasks into projects. Archived projects disappear
+                    from the pickers, but their tasks stay around.
+                </p>
+            </div>
+            <Button class="shrink-0" @click="creating = true">
+                <Plus class="mr-1.5 h-4 w-4" />
                 New project
-            </h2>
-            <ProjectForm />
-        </section>
+            </Button>
+        </header>
 
         <section aria-label="Active projects" class="space-y-3">
             <div
@@ -141,5 +144,14 @@ const taskCountLabel = (count: number | undefined): string => {
                 </li>
             </ul>
         </section>
+
+        <Dialog v-model:open="creating">
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>New project</DialogTitle>
+                </DialogHeader>
+                <ProjectForm @saved="creating = false" />
+            </DialogContent>
+        </Dialog>
     </div>
 </template>

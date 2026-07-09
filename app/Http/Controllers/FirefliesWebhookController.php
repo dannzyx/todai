@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\MeetingImportStatus;
+use App\Enums\MeetingSource;
+use App\Enums\MeetingStatus;
 use App\Jobs\ProcessFirefliesMeeting;
 use App\Models\FirefliesIntegration;
-use App\Models\MeetingImport;
+use App\Models\Meeting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -41,13 +42,17 @@ class FirefliesWebhookController extends Controller
         }
 
         // Idempotent per user + meeting. Only the first delivery does the work.
-        $import = MeetingImport::firstOrCreate(
+        $meeting = Meeting::firstOrCreate(
             ['fireflies_meeting_id' => $meetingId],
-            ['user_id' => $integration->user_id, 'status' => MeetingImportStatus::Pending],
+            [
+                'user_id' => $integration->user_id,
+                'source' => MeetingSource::Fireflies,
+                'status' => MeetingStatus::Processing,
+            ],
         );
 
-        if ($import->wasRecentlyCreated) {
-            ProcessFirefliesMeeting::dispatch($import);
+        if ($meeting->wasRecentlyCreated) {
+            ProcessFirefliesMeeting::dispatch($meeting);
         }
 
         return response()->json(['ok' => true]);

@@ -20,7 +20,7 @@ return new class extends Migration
             $table->date('due_date')->nullable();
             $table->timestamp('completed_at')->nullable();
             $table->string('source')->default('manual');
-            $table->foreignUlid('meeting_import_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignUlid('meeting_id')->nullable()->constrained('meetings')->nullOnDelete();
 
             // AI project suggestion, shown in UI until accepted or dismissed.
             $table->foreignUlid('suggested_project_id')->nullable()->constrained('projects')->nullOnDelete();

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\FirefliesWebhookController;
+use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TaskController;
 use Illuminate\Http\Request;
@@ -51,6 +52,25 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('projecten/{project}', [ProjectController::class, 'update'])->name('projects.update');
     Route::patch('projecten/{project}/archiveren', [ProjectController::class, 'archive'])->name('projects.archive');
     Route::patch('projecten/{project}/herstellen', [ProjectController::class, 'unarchive'])->name('projects.unarchive');
+
+    // Meetings (Dutch URLs, English route names).
+    Route::get('vergaderingen', [MeetingController::class, 'index'])->name('meetings.index');
+    Route::post('vergaderingen', [MeetingController::class, 'store'])->name('meetings.store');
+    Route::get('vergaderingen/{meeting}', [MeetingController::class, 'show'])->name('meetings.show');
+    Route::put('vergaderingen/{meeting}', [MeetingController::class, 'update'])->name('meetings.update');
+    Route::delete('vergaderingen/{meeting}', [MeetingController::class, 'destroy'])->name('meetings.destroy');
+    Route::post('vergaderingen/{meeting}/genereren', [MeetingController::class, 'generate'])->name('meetings.generate');
+
+    // Meeting todo suggestions (staged until accepted). Scoped to their meeting.
+    Route::scopeBindings()->group(function () {
+        Route::patch('vergaderingen/{meeting}/suggesties/toewijzen', [MeetingController::class, 'acceptAllSuggestions'])->name('meetings.suggestions.accept-all');
+        Route::patch('vergaderingen/{meeting}/suggesties/{taskSuggestion}/toewijzen', [MeetingController::class, 'acceptSuggestion'])->name('meetings.suggestion.accept');
+        Route::patch('vergaderingen/{meeting}/suggesties/{taskSuggestion}/negeren', [MeetingController::class, 'dismissSuggestion'])->name('meetings.suggestion.dismiss');
+    });
+
+    // Meeting project suggestion.
+    Route::patch('vergaderingen/{meeting}/project/toewijzen', [MeetingController::class, 'acceptProject'])->name('meetings.project.accept');
+    Route::patch('vergaderingen/{meeting}/project/negeren', [MeetingController::class, 'dismissProject'])->name('meetings.project.dismiss');
 });
 
 require __DIR__.'/settings.php';

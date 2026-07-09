@@ -2,6 +2,7 @@
 import { useForm } from '@inertiajs/vue3';
 import TaskController from '@/actions/App/Http/Controllers/TaskController';
 import InputError from '@/components/InputError.vue';
+import MarkdownEditor from '@/components/todai/MarkdownEditor.vue';
 import ProjectPicker from '@/components/todai/ProjectPicker.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -66,11 +67,10 @@ const submit = () => {
 
         <div class="space-y-1.5">
             <Label for="task-description">Description (optional)</Label>
-            <textarea
+            <MarkdownEditor
                 id="task-description"
                 v-model="form.description"
-                rows="3"
-                class="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                :rows="4"
             />
             <InputError :message="form.errors.description" />
         </div>

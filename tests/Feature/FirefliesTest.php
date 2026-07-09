@@ -1,12 +1,10 @@
 <?php
 
-use App\Ai\Agents\TaskExtractorAgent;
-use App\Enums\MeetingImportStatus;
-use App\Enums\TaskSource;
-use App\Jobs\ClassifyTaskProject;
+use App\Enums\MeetingStatus;
+use App\Jobs\GenerateMeetingSuggestions;
 use App\Jobs\ProcessFirefliesMeeting;
 use App\Models\FirefliesIntegration;
-use App\Models\MeetingImport;
+use App\Models\Meeting;
 use App\Models\Task;
 use App\Models\User;
 use App\Services\FirefliesClient;
@@ -25,7 +23,7 @@ it('returns 404 for an unknown webhook token', function () {
     $this->postJson('/webhooks/fireflies/does-not-exist', firefliesPayload())
         ->assertNotFound();
 
-    expect(MeetingImport::count())->toBe(0);
+    expect(Meeting::count())->toBe(0);
 });
 
 it('rejects a webhook with an invalid signature', function () {
@@ -35,7 +33,7 @@ it('rejects a webhook with an invalid signature', function () {
         'x-hub-signature' => 'sha256=deadbeef',
     ])->assertStatus(401);
 
-    expect(MeetingImport::count())->toBe(0);
+    expect(Meeting::count())->toBe(0);
 });
 
 it('accepts a webhook with a valid signature', function () {
@@ -51,7 +49,7 @@ it('accepts a webhook with a valid signature', function () {
         'HTTP_X_HUB_SIGNATURE' => $signature,
     ], $content)->assertOk();
 
-    expect(MeetingImport::count())->toBe(1);
+    expect(Meeting::count())->toBe(1);
     Queue::assertPushed(ProcessFirefliesMeeting::class, 1);
 });
 
@@ -62,7 +60,7 @@ it('ignores non-transcription events', function () {
     $this->postJson("/webhooks/fireflies/{$integration->webhook_token}", firefliesPayload('M', 'Some other event'))
         ->assertOk();
 
-    expect(MeetingImport::count())->toBe(0);
+    expect(Meeting::count())->toBe(0);
     Queue::assertNotPushed(ProcessFirefliesMeeting::class);
 });
 
@@ -74,7 +72,7 @@ it('is idempotent across webhook redelivery', function () {
     $this->postJson($url, firefliesPayload('SAME'))->assertOk();
     $this->postJson($url, firefliesPayload('SAME'))->assertOk();
 
-    expect(MeetingImport::where('fireflies_meeting_id', 'SAME')->count())->toBe(1);
+    expect(Meeting::where('fireflies_meeting_id', 'SAME')->count())->toBe(1);
     Queue::assertPushed(ProcessFirefliesMeeting::class, 1);
 });
 
@@ -88,14 +86,14 @@ it('routes a meeting to the token owner, never another user', function () {
     $this->postJson("/webhooks/fireflies/{$integrationA->webhook_token}", firefliesPayload('X'))
         ->assertOk();
 
-    $import = MeetingImport::sole();
-    expect($import->user_id)->toBe($userA->id)
-        ->and($import->user_id)->not->toBe($userB->id);
+    $meeting = Meeting::sole();
+    expect($meeting->user_id)->toBe($userA->id)
+        ->and($meeting->user_id)->not->toBe($userB->id);
 });
 
 // --- Processing job ----------------------------------------------------------
 
-it('extracts action items into inbox tasks with suggestions queued', function () {
+it('persists the transcript and hands off to suggestion generation', function () {
     Queue::fake();
 
     Http::fake([
@@ -107,59 +105,49 @@ it('extracts action items into inbox tasks with suggestions queued', function ()
         ]]]),
     ]);
 
-    TaskExtractorAgent::fake([
-        ['tasks' => [
-            ['title' => 'Remy bellen', 'description' => null, 'due_date' => '2026-07-10'],
-            ['title' => 'Offerte sturen', 'description' => 'Naar TalentSquare', 'due_date' => null],
-        ]],
-    ]);
-
     $user = User::factory()->create();
     FirefliesIntegration::factory()->for($user)->create();
-    $import = MeetingImport::factory()->for($user)->create(['fireflies_meeting_id' => 'M-EXTRACT']);
+    $meeting = Meeting::factory()->for($user)->create(['fireflies_meeting_id' => 'M-EXTRACT']);
 
-    (new ProcessFirefliesMeeting($import))->handle(new FirefliesClient);
+    (new ProcessFirefliesMeeting($meeting))->handle(new FirefliesClient);
 
-    $import->refresh();
-    expect($import->status)->toBe(MeetingImportStatus::Processed)
-        ->and($import->title)->toBe('Weekstart')
-        ->and($import->tasks()->count())->toBe(2);
+    $meeting->refresh();
+    expect($meeting->status)->toBe(MeetingStatus::Processing)
+        ->and($meeting->title)->toBe('Weekstart')
+        ->and($meeting->summary)->toBe('Kort overleg.')
+        ->and($meeting->action_items)->toBe("Remy bellen\nOfferte sturen")
+        ->and($meeting->transcript)->toBe('Danny: We moeten Remy bellen.')
+        ->and(Task::count())->toBe(0);
 
-    $remy = Task::where('title', 'Remy bellen')->sole();
-    expect($remy->source)->toBe(TaskSource::Fireflies)
-        ->and($remy->project_id)->toBeNull()
-        ->and($remy->meeting_import_id)->toBe($import->id)
-        ->and($remy->due_date->toDateString())->toBe('2026-07-10');
-
-    Queue::assertPushed(ClassifyTaskProject::class, 2);
+    Queue::assertPushed(GenerateMeetingSuggestions::class, 1);
 });
 
-it('marks the import failed when the transcript cannot be fetched', function () {
+it('marks the meeting failed when the transcript cannot be fetched', function () {
     Queue::fake();
     Http::fake(['api.fireflies.ai/*' => Http::response([], 500)]);
 
     $user = User::factory()->create();
     FirefliesIntegration::factory()->for($user)->create();
-    $import = MeetingImport::factory()->for($user)->create();
+    $meeting = Meeting::factory()->for($user)->create();
 
-    (new ProcessFirefliesMeeting($import))->handle(new FirefliesClient);
+    (new ProcessFirefliesMeeting($meeting))->handle(new FirefliesClient);
 
-    $import->refresh();
-    expect($import->status)->toBe(MeetingImportStatus::Failed)
-        ->and($import->error)->not->toBeNull()
-        ->and(Task::count())->toBe(0);
+    $meeting->refresh();
+    expect($meeting->status)->toBe(MeetingStatus::Failed)
+        ->and($meeting->error)->not->toBeNull();
+
+    Queue::assertNotPushed(GenerateMeetingSuggestions::class);
 });
 
-it('does nothing for an already-processed import', function () {
+it('does nothing for an already-ready meeting', function () {
     Http::fake();
     $user = User::factory()->create();
     FirefliesIntegration::factory()->for($user)->create();
-    $import = MeetingImport::factory()->for($user)->processed()->create();
+    $meeting = Meeting::factory()->for($user)->ready()->create();
 
-    (new ProcessFirefliesMeeting($import))->handle(new FirefliesClient);
+    (new ProcessFirefliesMeeting($meeting))->handle(new FirefliesClient);
 
     Http::assertNothingSent();
-    expect(Task::count())->toBe(0);
 });
 
 // --- Settings connection -----------------------------------------------------

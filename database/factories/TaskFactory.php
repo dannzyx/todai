@@ -29,7 +29,7 @@ class TaskFactory extends Factory
             'due_date' => null,
             'completed_at' => null,
             'source' => TaskSource::Manual,
-            'meeting_import_id' => null,
+            'meeting_id' => null,
             'suggested_project_id' => null,
             'suggestion_confidence' => null,
             'suggestion_reasoning' => null,

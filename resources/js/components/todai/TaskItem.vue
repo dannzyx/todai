@@ -139,8 +139,8 @@ const toggle = () => {
                             class="text-aqua-strong"
                         >
                             from meeting{{
-                                task.meeting_import?.title
-                                    ? ` · ${task.meeting_import.title}`
+                                task.meeting?.title
+                                    ? ` · ${task.meeting.title}`
                                     : ''
                             }}
                         </Meta>

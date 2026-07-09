@@ -96,6 +96,22 @@ it('records every incoming webhook with its outcome and payload', function () {
         ->and($event->payload['meetingId'])->toBe('REC-1');
 });
 
+it('accepts a transcription event using snake_case field names', function () {
+    Queue::fake();
+    $integration = FirefliesIntegration::factory()->create();
+
+    // Some Fireflies payloads use `event` / `meeting_id` instead of camelCase.
+    $this->postJson("/webhooks/fireflies/{$integration->webhook_token}", [
+        'event' => 'Transcription completed',
+        'meeting_id' => 'SNAKE-1',
+    ])->assertOk();
+
+    expect(Meeting::where('fireflies_meeting_id', 'SNAKE-1')->count())->toBe(1);
+    Queue::assertPushed(ProcessFirefliesMeeting::class, 1);
+
+    expect(WebhookEvent::sole()->outcome)->toBe(WebhookOutcome::Accepted);
+});
+
 it('records a rejected webhook for an unknown token', function () {
     $this->postJson('/webhooks/fireflies/nope', firefliesPayload())->assertNotFound();
 

@@ -26,8 +26,8 @@ class FirefliesWebhookController extends Controller
      */
     public function __invoke(Request $request, string $token): JsonResponse
     {
-        $eventType = (string) $request->input('eventType', '');
-        $meetingId = (string) $request->input('meetingId', '');
+        $eventType = $this->eventType($request);
+        $meetingId = $this->meetingId($request);
 
         $context = [
             'token' => Str::limit($token, 8, '…'),
@@ -100,12 +100,28 @@ class FirefliesWebhookController extends Controller
             'source' => 'fireflies',
             'user_id' => $userId,
             'outcome' => $outcome,
-            'event_type' => ((string) $request->input('eventType', '')) ?: null,
-            'fireflies_meeting_id' => ((string) $request->input('meetingId', '')) ?: null,
+            'event_type' => $this->eventType($request) ?: null,
+            'fireflies_meeting_id' => $this->meetingId($request) ?: null,
             'signed' => $request->hasHeader('x-hub-signature'),
             'ip' => $request->ip(),
             'payload' => $request->all(),
         ]);
+    }
+
+    /**
+     * The event type, tolerating both Fireflies namings (eventType / event).
+     */
+    protected function eventType(Request $request): string
+    {
+        return (string) $request->input('eventType', $request->input('event', ''));
+    }
+
+    /**
+     * The meeting id, tolerating both Fireflies namings (meetingId / meeting_id).
+     */
+    protected function meetingId(Request $request): string
+    {
+        return (string) $request->input('meetingId', $request->input('meeting_id', ''));
     }
 
     /**

@@ -139,8 +139,7 @@ return [
                 'text' => [
                     // Todai's default text model. Confirm the chosen model supports
                     // structured output on OpenRouter before relying on it (Phases 3-5).
-                    'default' => env('TODAI_DEFAULT_MODEL', 'openai/gpt-4o-mini'),
-                    'cheapest' => env('TODAI_CHEAP_MODEL', env('TODAI_DEFAULT_MODEL', 'openai/gpt-4o-mini')),
+                    'default' => env('TODAI_DEFAULT_MODEL', 'openrouter/auto'),
                     'smartest' => env('TODAI_SMART_MODEL', 'openai/gpt-4o'),
                 ],
             ],

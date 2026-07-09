@@ -4,7 +4,6 @@ namespace App\Ai\Agents;
 
 use App\Models\User;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
-use Laravel\Ai\Attributes\UseCheapestModel;
 use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\HasStructuredOutput;
 use Laravel\Ai\Promptable;
@@ -19,7 +18,6 @@ use Stringable;
  * 1-based index; the agent returns either that index or a proposed new project
  * name, so we never rely on the model reproducing an opaque ULID.
  */
-#[UseCheapestModel]
 class MeetingSuggestionAgent implements Agent, HasStructuredOutput
 {
     public function __construct(public User $user) {}

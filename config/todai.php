@@ -18,4 +18,21 @@ return [
         'hour' => env('TODAI_REMINDERS_HOUR', 7),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Admin emails
+    |--------------------------------------------------------------------------
+    |
+    | Users whose email is listed here get access to app-wide operational views
+    | (like the incoming Fireflies webhook log). There is no full admin panel;
+    | this is a lightweight gate. Override via the TODAI_ADMIN_EMAILS env var
+    | (comma-separated).
+    |
+    */
+
+    'admin_emails' => array_values(array_filter(array_map(
+        'trim',
+        explode(',', (string) env('TODAI_ADMIN_EMAILS', 'danny@krafters.nl')),
+    ))),
+
 ];

@@ -65,6 +65,22 @@ it('sends a chat message through the controller', function () {
     ChatAgent::assertPrompted('Hallo Todai');
 });
 
+it('returns the transcript as json for an ajax send', function () {
+    Queue::fake();
+    ChatAgent::fake(['Waarmee kan ik je helpen?']);
+
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->postJson(route('chat.send'), ['message' => 'Hallo Todai'])
+        ->assertOk()
+        ->assertJsonStructure(['messages', 'createdTasks'])
+        ->assertJsonPath('messages.0.role', 'user')
+        ->assertJsonPath('messages.0.content', 'Hallo Todai');
+
+    ChatAgent::assertPrompted('Hallo Todai');
+});
+
 it('requires a message to send', function () {
     $user = User::factory()->create();
 

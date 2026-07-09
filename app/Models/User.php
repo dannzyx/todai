@@ -53,6 +53,14 @@ class User extends Authenticatable implements PasskeyUser
     }
 
     /**
+     * Determine whether the user has app-wide admin access (see config/todai.php).
+     */
+    public function isAdmin(): bool
+    {
+        return in_array($this->email, config('todai.admin_emails', []), true);
+    }
+
+    /**
      * The projects that belong to the user.
      *
      * @return HasMany<Project, $this>

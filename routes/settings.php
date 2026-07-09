@@ -28,6 +28,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Fireflies integration (per-user).
     Route::get('settings/fireflies', [FirefliesController::class, 'edit'])->name('fireflies.edit');
+    Route::get('settings/fireflies/webhooks', [FirefliesController::class, 'webhooks'])->name('fireflies.webhooks');
     Route::put('settings/fireflies', [FirefliesController::class, 'update'])->name('fireflies.update');
     Route::patch('settings/fireflies/rotate', [FirefliesController::class, 'rotate'])->name('fireflies.rotate');
     Route::delete('settings/fireflies', [FirefliesController::class, 'destroy'])->name('fireflies.destroy');

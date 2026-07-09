@@ -1,16 +1,15 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3';
-import { Check, MoreHorizontal } from '@lucide/vue';
+import { Check, MoreHorizontal, Pencil } from '@lucide/vue';
 import { computed, onMounted, ref } from 'vue';
 import TaskController from '@/actions/App/Http/Controllers/TaskController';
+import Markdown from '@/components/todai/Markdown.vue';
 import Meta from '@/components/todai/Meta.vue';
 import SuggestionBanner from '@/components/todai/SuggestionBanner.vue';
 import TaskActionsMenu from '@/components/todai/TaskActionsMenu.vue';
 import TaskForm from '@/components/todai/TaskForm.vue';
-import {
-    ContextMenu,
-    ContextMenuTrigger,
-} from '@/components/ui/context-menu';
+import { Button } from '@/components/ui/button';
+import { ContextMenu, ContextMenuTrigger } from '@/components/ui/context-menu';
 import {
     Dialog,
     DialogContent,
@@ -29,7 +28,19 @@ const props = withDefaults(
     { showProject: true },
 );
 
-const editing = ref(false);
+// One dialog, two modes: 'view' shows the task detail, 'edit' the form.
+const dialogOpen = ref(false);
+const mode = ref<'view' | 'edit'>('view');
+
+const openDetails = () => {
+    mode.value = 'view';
+    dialogOpen.value = true;
+};
+
+const openEdit = () => {
+    mode.value = 'edit';
+    dialogOpen.value = true;
+};
 
 // When linked to directly (e.g. from the "Task added" toast via #task-{id}),
 // scroll this item into view and briefly highlight it.
@@ -101,16 +112,18 @@ const toggle = () => {
                 </button>
 
                 <div class="min-w-0 flex-1">
-                    <p
-                        class="text-sm leading-snug"
+                    <button
+                        type="button"
+                        class="block w-full text-left text-sm leading-snug hover:underline focus-visible:underline focus-visible:outline-none"
                         :class="
                             task.completed_at
                                 ? 'text-muted-foreground line-through'
                                 : 'text-foreground'
                         "
+                        @click="openDetails"
                     >
                         {{ task.title }}
-                    </p>
+                    </button>
 
                     <div
                         class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1"
@@ -162,25 +175,87 @@ const toggle = () => {
                     <TaskActionsMenu
                         variant="dropdown"
                         :task="task"
-                        @edit="editing = true"
+                        @edit="openEdit"
                     />
                 </DropdownMenu>
             </div>
         </ContextMenuTrigger>
 
-        <TaskActionsMenu
-            variant="context"
-            :task="task"
-            @edit="editing = true"
-        />
+        <TaskActionsMenu variant="context" :task="task" @edit="openEdit" />
     </ContextMenu>
 
-    <Dialog v-model:open="editing">
+    <Dialog v-model:open="dialogOpen">
         <DialogContent>
-            <DialogHeader>
-                <DialogTitle>Edit task</DialogTitle>
-            </DialogHeader>
-            <TaskForm :task="task" @saved="editing = false" />
+            <template v-if="mode === 'edit'">
+                <DialogHeader>
+                    <DialogTitle>Edit task</DialogTitle>
+                </DialogHeader>
+                <TaskForm :task="task" @saved="dialogOpen = false" />
+            </template>
+
+            <template v-else>
+                <DialogHeader>
+                    <DialogTitle class="pr-6">{{ task.title }}</DialogTitle>
+                </DialogHeader>
+
+                <div class="space-y-4">
+                    <div
+                        v-if="
+                            task.due_date ||
+                            (showProject && task.project) ||
+                            task.source === 'fireflies'
+                        "
+                        class="flex flex-wrap items-center gap-x-3 gap-y-1"
+                    >
+                        <Meta v-if="task.due_date" :class="dueClass">
+                            {{ dueLabel(task.due_date) }}
+                        </Meta>
+                        <span
+                            v-if="showProject && task.project"
+                            class="inline-flex items-center gap-1.5 text-xs text-muted-foreground"
+                        >
+                            <span
+                                class="h-2 w-2 rounded-full"
+                                :style="{
+                                    backgroundColor:
+                                        task.project.color ?? '#6B7280',
+                                }"
+                                aria-hidden="true"
+                            />
+                            {{ task.project.name }}
+                        </span>
+                        <Meta
+                            v-if="task.source === 'fireflies'"
+                            class="text-aqua-strong"
+                        >
+                            from meeting{{
+                                task.meeting?.title
+                                    ? ` · ${task.meeting.title}`
+                                    : ''
+                            }}
+                        </Meta>
+                    </div>
+
+                    <Markdown
+                        v-if="task.description"
+                        :content="task.description"
+                    />
+                    <p v-else class="text-sm text-muted-foreground italic">
+                        No description.
+                    </p>
+
+                    <div class="flex justify-end">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            @click="mode = 'edit'"
+                        >
+                            <Pencil class="mr-1.5 h-4 w-4" />
+                            Edit
+                        </Button>
+                    </div>
+                </div>
+            </template>
         </DialogContent>
     </Dialog>
 </template>

@@ -1,15 +1,18 @@
 <?php
 
 use App\Enums\MeetingStatus;
+use App\Enums\WebhookOutcome;
 use App\Jobs\GenerateMeetingSuggestions;
 use App\Jobs\ProcessFirefliesMeeting;
 use App\Models\FirefliesIntegration;
 use App\Models\Meeting;
 use App\Models\Task;
 use App\Models\User;
+use App\Models\WebhookEvent;
 use App\Services\FirefliesClient;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 
 function firefliesPayload(string $meetingId = 'MEETING-1', string $event = 'Transcription completed'): array
@@ -51,6 +54,72 @@ it('accepts a webhook with a valid signature', function () {
 
     expect(Meeting::count())->toBe(1);
     Queue::assertPushed(ProcessFirefliesMeeting::class, 1);
+});
+
+it('logs every incoming webhook with its payload', function () {
+    Queue::fake();
+    Log::spy();
+    $integration = FirefliesIntegration::factory()->create();
+
+    $this->postJson("/webhooks/fireflies/{$integration->webhook_token}", firefliesPayload('LOG-1'))
+        ->assertOk();
+
+    Log::shouldHaveReceived('info')
+        ->withArgs(fn (string $message, array $context = []): bool => $message === 'Fireflies webhook received'
+            && ($context['meeting_id'] ?? null) === 'LOG-1'
+            && ($context['payload']['eventType'] ?? null) === 'Transcription completed')
+        ->once();
+});
+
+it('logs a warning for an unknown webhook token', function () {
+    Log::spy();
+
+    $this->postJson('/webhooks/fireflies/nope', firefliesPayload())->assertNotFound();
+
+    Log::shouldHaveReceived('warning')
+        ->withArgs(fn (string $message): bool => $message === 'Fireflies webhook rejected: unknown token')
+        ->once();
+});
+
+it('records every incoming webhook with its outcome and payload', function () {
+    Queue::fake();
+    $integration = FirefliesIntegration::factory()->create();
+
+    $this->postJson("/webhooks/fireflies/{$integration->webhook_token}", firefliesPayload('REC-1'))
+        ->assertOk();
+
+    $event = WebhookEvent::sole();
+    expect($event->outcome)->toBe(WebhookOutcome::Accepted)
+        ->and($event->user_id)->toBe($integration->user_id)
+        ->and($event->event_type)->toBe('Transcription completed')
+        ->and($event->fireflies_meeting_id)->toBe('REC-1')
+        ->and($event->payload['meetingId'])->toBe('REC-1');
+});
+
+it('records a rejected webhook for an unknown token', function () {
+    $this->postJson('/webhooks/fireflies/nope', firefliesPayload())->assertNotFound();
+
+    $event = WebhookEvent::sole();
+    expect($event->outcome)->toBe(WebhookOutcome::UnknownToken)
+        ->and($event->user_id)->toBeNull();
+});
+
+it('shows the webhook history to an admin', function () {
+    $admin = User::factory()->create();
+    config()->set('todai.admin_emails', [$admin->email]);
+    WebhookEvent::factory()->create();
+
+    $this->actingAs($admin)
+        ->get(route('fireflies.webhooks'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->component('settings/fireflies/Webhooks'));
+});
+
+it('forbids the webhook history for non-admins', function () {
+    $user = User::factory()->create();
+    config()->set('todai.admin_emails', []);
+
+    $this->actingAs($user)->get(route('fireflies.webhooks'))->assertForbidden();
 });
 
 it('ignores non-transcription events', function () {

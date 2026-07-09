@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Head, router, useForm } from '@inertiajs/vue3';
-import { Check, Copy } from '@lucide/vue';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
+import { Check, Copy, Radio } from '@lucide/vue';
 import { ref } from 'vue';
 import Heading from '@/components/Heading.vue';
 import InputError from '@/components/InputError.vue';
@@ -8,13 +8,14 @@ import Meta from '@/components/todai/Meta.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { destroy, rotate, update } from '@/routes/fireflies';
+import { destroy, rotate, update, webhooks } from '@/routes/fireflies';
 
 const props = defineProps<{
     connected: boolean;
     firefliesEmail: string | null;
     hasSecret: boolean;
     webhookUrl: string | null;
+    isAdmin: boolean;
 }>();
 
 defineOptions({
@@ -41,6 +42,7 @@ const copyToClipboard = async (text: string): Promise<boolean> => {
     if (navigator.clipboard?.writeText) {
         try {
             await navigator.clipboard.writeText(text);
+
             return true;
         } catch {
             // Fall through to the legacy path.
@@ -55,6 +57,7 @@ const copyToClipboard = async (text: string): Promise<boolean> => {
     textarea.select();
 
     let succeeded = false;
+
     try {
         succeeded = document.execCommand('copy');
     } catch {
@@ -174,6 +177,16 @@ const disconnect = () => router.delete(destroy().url, { preserveScroll: true });
                 {{ connected ? 'Update' : 'Connect' }}
             </Button>
         </form>
+
+        <!-- Incoming webhook history (admin only) -->
+        <Link
+            v-if="isAdmin"
+            :href="webhooks().url"
+            class="flex items-center gap-2 rounded-lg border border-border px-4 py-3 text-sm text-foreground transition-colors hover:border-solar/50"
+        >
+            <Radio class="h-4 w-4 text-muted-foreground" />
+            View incoming webhooks
+        </Link>
 
         <!-- Management -->
         <div

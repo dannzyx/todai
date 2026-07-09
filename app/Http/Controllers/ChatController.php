@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Ai\Agents\ChatAgent;
 use App\Models\Task;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -33,8 +34,12 @@ class ChatController extends Controller
 
     /**
      * Send a message to Todai, which may create tasks, then reply.
+     *
+     * The chat UI calls this with `Accept: application/json` and updates the
+     * thread in place; a JSON payload with the full transcript is returned.
+     * Non-JSON callers fall back to a redirect for progressive enhancement.
      */
-    public function send(Request $request): RedirectResponse
+    public function send(Request $request): RedirectResponse|JsonResponse
     {
         $validated = $request->validate([
             'message' => ['required', 'string', 'max:2000'],
@@ -53,7 +58,16 @@ class ChatController extends Controller
 
         $request->session()->put(self::SESSION_KEY, $response->conversationId);
 
-        return to_route('chat.index')->with('chatCreatedTasks', $this->summarise($agent->createdTasks));
+        $createdTasks = $this->summarise($agent->createdTasks);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'messages' => $this->transcript($response->conversationId),
+                'createdTasks' => $createdTasks,
+            ]);
+        }
+
+        return to_route('chat.index')->with('chatCreatedTasks', $createdTasks);
     }
 
     /**

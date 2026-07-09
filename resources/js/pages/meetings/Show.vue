@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, Link, router, usePoll } from '@inertiajs/vue3';
 import {
     ArrowLeft,
     Check,
@@ -9,7 +9,7 @@ import {
     Trash2,
     X,
 } from '@lucide/vue';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import MeetingController from '@/actions/App/Http/Controllers/MeetingController';
 import Markdown from '@/components/todai/Markdown.vue';
 import MeetingForm from '@/components/todai/MeetingForm.vue';
@@ -41,6 +41,27 @@ const editing = ref(false);
 const suggestions = computed(() => props.meeting.task_suggestions ?? []);
 
 const isProcessing = computed(() => props.meeting.status === 'processing');
+
+// While the suggestions job runs, poll the server so the page refreshes itself
+// the moment generation finishes. Only the meeting prop is refetched, and
+// polling stops as soon as the status leaves "processing".
+const { start: startPolling, stop: stopPolling } = usePoll(
+    2500,
+    { only: ['meeting'] },
+    { autoStart: false },
+);
+
+watch(
+    isProcessing,
+    (processing) => {
+        if (processing) {
+            startPolling();
+        } else {
+            stopPolling();
+        }
+    },
+    { immediate: true },
+);
 
 const sourceLabel = computed(() =>
     props.meeting.source === 'fireflies' ? 'Fireflies' : 'Manual',
@@ -75,7 +96,8 @@ const generate = () => {
 
 const acceptSuggestion = (suggestionId: string) => {
     router.patch(
-        MeetingController.acceptSuggestion([props.meeting.id, suggestionId]).url,
+        MeetingController.acceptSuggestion([props.meeting.id, suggestionId])
+            .url,
         {},
         { preserveScroll: true },
     );
@@ -145,7 +167,10 @@ const destroy = () => {
                     <span v-if="meeting.meeting_date">
                         · {{ shortDate(meeting.meeting_date) }}
                     </span>
-                    <span v-if="meeting.project" class="inline-flex items-center gap-1">
+                    <span
+                        v-if="meeting.project"
+                        class="inline-flex items-center gap-1"
+                    >
                         ·
                         <span
                             class="inline-block h-2 w-2 rounded-full"
@@ -356,8 +381,7 @@ const destroy = () => {
                 <CollapsibleContent class="pt-2">
                     <pre
                         class="max-h-96 overflow-auto rounded-lg border border-border bg-muted/40 p-3 text-sm whitespace-pre-wrap text-foreground"
-                        >{{ meeting.transcript }}</pre
-                    >
+                        >{{ meeting.transcript }}</pre>
                 </CollapsibleContent>
             </Collapsible>
         </section>

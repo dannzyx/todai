@@ -26,6 +26,7 @@ class UpdateMeetingRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'meeting_date' => ['nullable', 'date'],
             'notes' => ['nullable', 'string', 'max:20000'],
+            'transcript' => ['nullable', 'string', 'max:1000000'],
         ];
     }
 

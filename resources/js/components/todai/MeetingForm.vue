@@ -25,6 +25,7 @@ const form = useForm({
     title: props.meeting?.title ?? '',
     meeting_date: toDateInput(props.meeting?.meeting_date ?? null),
     notes: props.meeting?.notes ?? '',
+    transcript: props.meeting?.transcript ?? '',
 });
 
 const submit = () => {
@@ -75,6 +76,18 @@ const submit = () => {
                 placeholder="Jot down what happened, decisions, follow-ups… Markdown supported."
             />
             <InputError :message="form.errors.notes" />
+        </div>
+
+        <div class="space-y-1.5">
+            <Label for="meeting-transcript">Transcript (optional)</Label>
+            <textarea
+                id="meeting-transcript"
+                v-model="form.transcript"
+                :rows="10"
+                placeholder="Paste the full meeting transcript here…"
+                class="block w-full resize-y rounded-md border border-input bg-transparent px-3 py-2 font-mono text-sm shadow-sm placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:outline-none"
+            />
+            <InputError :message="form.errors.transcript" />
         </div>
 
         <div class="flex items-center gap-3">

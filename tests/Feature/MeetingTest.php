@@ -33,6 +33,22 @@ it('creates a manual meeting', function () {
         ->and($meeting->notes)->toBe('We discussed the roadmap.');
 });
 
+it('stores a transcript larger than the notes limit', function () {
+    $user = User::factory()->create();
+    $transcript = trim(str_repeat('Speaker: a long line of dialogue. ', 3000));
+
+    expect(strlen($transcript))->toBeGreaterThan(20000);
+
+    $this->actingAs($user)
+        ->post(route('meetings.store'), [
+            'title' => 'Hour-long sync',
+            'transcript' => $transcript,
+        ])
+        ->assertRedirect();
+
+    expect(Meeting::sole()->transcript)->toBe($transcript);
+});
+
 it('validates that a manual meeting has a title', function () {
     $user = User::factory()->create();
 

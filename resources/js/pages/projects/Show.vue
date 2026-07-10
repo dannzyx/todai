@@ -48,16 +48,18 @@ const toggleArchive = () => {
             All projects
         </Link>
 
-        <header class="flex items-start justify-between gap-4">
-            <div class="flex items-center gap-3">
+        <header
+            class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
+        >
+            <div class="flex min-w-0 items-center gap-3">
                 <span
                     class="h-4 w-4 shrink-0 rounded-full"
                     :style="{ backgroundColor: project.color ?? '#6B7280' }"
                     aria-hidden="true"
                 />
-                <div>
+                <div class="min-w-0">
                     <h1
-                        class="font-display text-4xl font-semibold tracking-tight"
+                        class="font-display text-3xl font-semibold tracking-tight break-words sm:text-4xl"
                     >
                         {{ project.name }}
                     </h1>
@@ -65,7 +67,7 @@ const toggleArchive = () => {
                 </div>
             </div>
 
-            <div class="flex shrink-0 items-center gap-2">
+            <div class="flex shrink-0 flex-wrap items-center gap-2">
                 <Button size="sm" @click="openTaskModal(project.id)">
                     <Plus class="mr-1.5 h-4 w-4" />
                     New task

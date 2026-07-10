@@ -114,7 +114,7 @@ const toggle = () => {
                 <div class="min-w-0 flex-1">
                     <button
                         type="button"
-                        class="block w-full text-left text-sm leading-snug hover:underline focus-visible:underline focus-visible:outline-none"
+                        class="block w-full text-left text-sm leading-snug break-words hover:underline focus-visible:underline focus-visible:outline-none"
                         :class="
                             task.completed_at
                                 ? 'text-muted-foreground line-through'
@@ -167,7 +167,7 @@ const toggle = () => {
 
                 <DropdownMenu>
                     <DropdownMenuTrigger
-                        class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                        class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground opacity-100 transition-opacity focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none sm:opacity-0 sm:group-hover:opacity-100"
                         aria-label="Task actions"
                     >
                         <MoreHorizontal class="h-4 w-4" />

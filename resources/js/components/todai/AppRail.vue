@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
-import AppearanceToggle from '@/components/todai/AppearanceToggle.vue';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -97,8 +96,6 @@ const emit = defineEmits<{ (e: 'open-command'): void }>();
                         >⌘K</kbd
                     >
                 </button>
-
-                <AppearanceToggle />
 
                 <DropdownMenu>
                     <DropdownMenuTrigger

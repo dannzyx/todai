@@ -24,8 +24,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('throttle:6,1')
         ->name('user-password.update');
 
-    Route::inertia('settings/appearance', 'settings/Appearance')->name('appearance.edit');
-
     // Fireflies integration (per-user).
     Route::get('settings/fireflies', [FirefliesController::class, 'edit'])->name('fireflies.edit');
     Route::get('settings/fireflies/webhooks', [FirefliesController::class, 'webhooks'])->name('fireflies.webhooks');

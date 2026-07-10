@@ -36,7 +36,9 @@ class MeetingSuggestionAgent implements Agent, HasStructuredOutput
         - Only return real, actionable tasks. Skip general discussion points,
           opinions and decisions without an action.
         - Merge duplicate or overlapping tasks into one task.
-        - Keep titles short and imperative, in English.
+        - Keep titles short and imperative.
+        - Write task titles and descriptions in the same language as the
+          meeting (transcript, summary and notes). Do not translate them.
         - Only fill due_date (YYYY-MM-DD) when the meeting states a clear
           deadline relative to the meeting date. Otherwise leave it empty.
         - If there are no tasks, return an empty list.

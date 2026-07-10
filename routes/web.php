@@ -7,19 +7,14 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TaskController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 // Fireflies webhook — machine-to-machine, no auth; the token identifies the user.
 Route::post('webhooks/fireflies/{token}', FirefliesWebhookController::class)
     ->name('fireflies.webhook');
 
-// Vandaag is the landing for authenticated users; guests see the marketing page.
+// No marketing front-page: authenticated users go to their dashboard, guests to login.
 Route::get('/', function (Request $request) {
-    if ($request->user()) {
-        return app(TaskController::class)->today($request);
-    }
-
-    return Inertia::render('Welcome');
+    return redirect()->route($request->user() ? 'dashboard' : 'login');
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {

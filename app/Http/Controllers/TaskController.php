@@ -25,6 +25,7 @@ class TaskController extends Controller
         Gate::authorize('viewAny', Task::class);
 
         $today = now()->toDateString();
+        $tomorrow = now()->addDay()->toDateString();
 
         $overdue = $request->user()->tasks()
             ->with(['project:id,name,color', 'suggestedProject:id,name,color'])
@@ -40,10 +41,18 @@ class TaskController extends Controller
             ->orderBy('completed_at')
             ->get();
 
+        $tomorrowTasks = $request->user()->tasks()
+            ->with(['project:id,name,color', 'suggestedProject:id,name,color'])
+            ->whereNull('completed_at')
+            ->whereDate('due_date', $tomorrow)
+            ->orderBy('due_date')
+            ->get();
+
         return Inertia::render('Vandaag', [
             'date' => $today,
             'overdue' => $overdue,
             'today' => $due,
+            'tomorrow' => $tomorrowTasks,
         ]);
     }
 

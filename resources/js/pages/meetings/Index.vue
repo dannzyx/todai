@@ -36,21 +36,23 @@ const statusLabel: Record<Meeting['status'], string> = {
     <Head title="Meetings" />
 
     <div class="space-y-10">
-        <header class="flex items-start justify-between gap-4">
+        <header class="flex flex-col gap-4">
             <div class="space-y-1">
                 <h1 class="font-display text-4xl font-semibold tracking-tight">
                     Meetings
                 </h1>
                 <p class="text-sm text-muted-foreground">
                     Every meeting lands here. Fireflies imports get todo
-                    suggestions automatically; add your own and generate todos on
-                    demand.
+                    suggestions automatically; add your own and generate todos
+                    on demand.
                 </p>
             </div>
-            <Button class="shrink-0" @click="creating = true">
-                <Plus class="mr-1.5 h-4 w-4" />
-                New meeting
-            </Button>
+            <div class="flex flex-wrap items-center gap-2">
+                <Button @click="creating = true">
+                    <Plus class="mr-1.5 h-4 w-4" />
+                    New meeting
+                </Button>
+            </div>
         </header>
 
         <section aria-label="Meetings" class="space-y-2">
@@ -81,7 +83,9 @@ const statusLabel: Record<Meeting['status'], string> = {
                             </span>
                             <span>· {{ statusLabel[meeting.status] }}</span>
                             <span
-                                v-if="(meeting.pending_suggestions_count ?? 0) > 0"
+                                v-if="
+                                    (meeting.pending_suggestions_count ?? 0) > 0
+                                "
                                 class="text-aqua-strong"
                             >
                                 · {{ meeting.pending_suggestions_count }} todo

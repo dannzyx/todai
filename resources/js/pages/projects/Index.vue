@@ -54,7 +54,7 @@ const isEmpty = (project: Project): boolean =>
     <Head title="Projects" />
 
     <div class="space-y-10">
-        <header class="flex items-start justify-between gap-4">
+        <header class="flex flex-col gap-4">
             <div class="space-y-1">
                 <h1 class="font-display text-4xl font-semibold tracking-tight">
                     Projects
@@ -64,10 +64,12 @@ const isEmpty = (project: Project): boolean =>
                     from the pickers, but their tasks stay around.
                 </p>
             </div>
-            <Button class="shrink-0" @click="creating = true">
-                <Plus class="mr-1.5 h-4 w-4" />
-                New project
-            </Button>
+            <div class="flex flex-wrap items-center gap-2">
+                <Button @click="creating = true">
+                    <Plus class="mr-1.5 h-4 w-4" />
+                    New project
+                </Button>
+            </div>
         </header>
 
         <section aria-label="Active projects" class="space-y-3">

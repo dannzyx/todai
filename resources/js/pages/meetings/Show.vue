@@ -157,7 +157,7 @@ const destroy = () => {
             All meetings
         </Link>
 
-        <header class="flex items-start justify-between gap-4">
+        <header class="flex flex-col gap-4">
             <div class="min-w-0 space-y-1">
                 <h1 class="font-display text-4xl font-semibold tracking-tight">
                     {{ meeting.title ?? 'Untitled meeting' }}
@@ -184,7 +184,7 @@ const destroy = () => {
                 </Meta>
             </div>
 
-            <div class="flex shrink-0 items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2">
                 <Button size="sm" :disabled="isProcessing" @click="generate">
                     <Sparkles class="mr-1.5 h-4 w-4" />
                     {{

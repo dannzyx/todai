@@ -48,9 +48,7 @@ const toggleArchive = () => {
             All projects
         </Link>
 
-        <header
-            class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
-        >
+        <header class="flex flex-col gap-4">
             <div class="flex min-w-0 items-center gap-3">
                 <span
                     class="h-4 w-4 shrink-0 rounded-full"
@@ -67,7 +65,7 @@ const toggleArchive = () => {
                 </div>
             </div>
 
-            <div class="flex shrink-0 flex-wrap items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2">
                 <Button size="sm" @click="openTaskModal(project.id)">
                     <Plus class="mr-1.5 h-4 w-4" />
                     New task

@@ -6,8 +6,9 @@ import TaskController from '@/actions/App/Http/Controllers/TaskController';
 
 /**
  * The persistent compose bar — Todai's signature quick-add: type a task and it
- * drops into the Inbox. Hidden on the Chat page, which has its own conversation
- * input.
+ * drops into the Inbox. On a project page it picks up that project's context so
+ * the new task lands in the project instead. Hidden on the Chat page, which has
+ * its own conversation input.
  */
 const page = usePage();
 const onChatPage = computed(() => {
@@ -16,12 +17,32 @@ const onChatPage = computed(() => {
     return path === '/chat' || path.startsWith('/chat/');
 });
 
-const form = useForm<{ title: string }>({ title: '' });
+// When viewing a project (projects/Show sets a `project` prop), a quick-added
+// task should default to that project; elsewhere it lands in the inbox.
+const currentProject = computed<{ id: string; name: string } | null>(() => {
+    const project = page.props.project as
+        { id?: string; name?: string } | undefined;
+
+    return project?.id ? { id: project.id, name: project.name ?? '' } : null;
+});
+
+const placeholder = computed(() =>
+    currentProject.value
+        ? `Add a task to ${currentProject.value.name}...`
+        : 'Type a task...',
+);
+
+const form = useForm<{ title: string; project_id: string | null }>({
+    title: '',
+    project_id: null,
+});
 
 const submit = () => {
     if (form.title.trim() === '') {
         return;
     }
+
+    form.project_id = currentProject.value?.id ?? null;
 
     form.post(TaskController.store().url, {
         preserveScroll: true,
@@ -33,7 +54,7 @@ const submit = () => {
 <template>
     <div
         v-if="!onChatPage"
-        class="sticky bottom-0 z-30 border-t border-border/70 bg-background/85 backdrop-blur"
+        class="sticky bottom-0 z-30 border-t border-border/70 bg-background/85 pb-[env(safe-area-inset-bottom)] backdrop-blur"
     >
         <form
             class="mx-auto flex max-w-3xl items-center gap-2 px-4 py-3 sm:px-6"
@@ -42,7 +63,7 @@ const submit = () => {
             <input
                 v-model="form.title"
                 type="text"
-                placeholder="Type a task..."
+                :placeholder="placeholder"
                 aria-label="New task"
                 class="flex-1 rounded-full border border-input bg-card px-4 py-2.5 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:border-solar focus-visible:ring-2 focus-visible:ring-solar/40 focus-visible:outline-none"
             />

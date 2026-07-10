@@ -43,6 +43,11 @@ const taskCountLabel = (count: number | undefined): string => {
 
     return value === 1 ? '1 open task' : `${value} open tasks`;
 };
+
+// Projects with no open tasks are de-emphasised so the ones that need
+// attention stand out. They stay in the alphabetical list and remain clickable.
+const isEmpty = (project: Project): boolean =>
+    (project.open_tasks_count ?? 0) === 0;
 </script>
 
 <template>
@@ -78,6 +83,9 @@ const taskCountLabel = (count: number | undefined): string => {
                     v-for="project in active"
                     :key="project.id"
                     class="group flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 shadow-sm transition-colors hover:border-solar/50"
+                    :class="{
+                        'opacity-55 hover:opacity-100': isEmpty(project),
+                    }"
                 >
                     <span
                         class="h-3 w-3 shrink-0 rounded-full"
@@ -98,7 +106,7 @@ const taskCountLabel = (count: number | undefined): string => {
                     <Button
                         variant="ghost"
                         size="sm"
-                        class="opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+                        class="opacity-100 transition-opacity focus-visible:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
                         @click="archive(project)"
                     >
                         <Archive class="mr-1.5 h-4 w-4" />

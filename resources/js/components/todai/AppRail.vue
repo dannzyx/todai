@@ -18,9 +18,14 @@ type RailItem = {
 /**
  * The slim top-rail destinations. Deliberately few — everything else lives
  * behind the command palette. No fixed left sidebar.
+ *
+ * "Today" points straight at `/dashboard` (the page that renders Vandaag)
+ * rather than `/`. `/` only issues a server redirect to `/dashboard`, so
+ * linking there added an extra round trip on every tap and left the item
+ * looking inactive (the resolved URL is `/dashboard`, never `/`).
  */
 const items: RailItem[] = [
-    { label: 'Today', href: '/', match: '/' },
+    { label: 'Today', href: '/dashboard', match: '/dashboard' },
     { label: 'Inbox', href: '/inbox', match: '/inbox' },
     { label: 'Projects', href: '/projecten', match: '/projecten' },
     { label: 'Meetings', href: '/vergaderingen', match: '/vergaderingen' },
@@ -38,13 +43,9 @@ const currentPath = computed(() => {
     }
 });
 
-const isActive = (item: RailItem): boolean => {
-    if (item.match === '/') {
-        return currentPath.value === '/';
-    }
-
-    return currentPath.value.startsWith(item.match);
-};
+const isActive = (item: RailItem): boolean =>
+    currentPath.value === item.match ||
+    currentPath.value.startsWith(`${item.match}/`);
 
 const emit = defineEmits<{ (e: 'open-command'): void }>();
 </script>
@@ -57,7 +58,7 @@ const emit = defineEmits<{ (e: 'open-command'): void }>();
             class="mx-auto flex h-14 max-w-3xl items-center gap-6 px-4 sm:px-6"
         >
             <Link
-                href="/"
+                href="/dashboard"
                 class="font-display text-xl font-semibold tracking-tight text-foreground"
             >
                 todai<span class="text-solar">.</span>
@@ -71,6 +72,8 @@ const emit = defineEmits<{ (e: 'open-command'): void }>();
                     v-for="item in items"
                     :key="item.href"
                     :href="item.href"
+                    :prefetch="['mount', 'hover']"
+                    :cache-for="['10s', '1m']"
                     :class="[
                         'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
                         isActive(item)
@@ -124,6 +127,9 @@ const emit = defineEmits<{ (e: 'open-command'): void }>();
                 v-for="item in items"
                 :key="item.href"
                 :href="item.href"
+                :prefetch="['mount', 'hover']"
+                :cache-for="['10s', '1m']"
+                :aria-current="isActive(item) ? 'page' : undefined"
                 :class="[
                     'rounded-md px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors',
                     isActive(item)

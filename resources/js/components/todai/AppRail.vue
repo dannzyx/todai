@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
+import { index as tasksIndex } from '@/actions/App/Http/Controllers/TaskController';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -27,7 +28,7 @@ type RailItem = {
 const items: RailItem[] = [
     { label: 'Today', href: '/dashboard', match: '/dashboard' },
     { label: 'Inbox', href: '/inbox', match: '/inbox' },
-    { label: 'Tasks', href: '/taken', match: '/taken' },
+    { label: 'Tasks', href: tasksIndex.url(), match: tasksIndex.url() },
     { label: 'Projects', href: '/projecten', match: '/projecten' },
     { label: 'Meetings', href: '/vergaderingen', match: '/vergaderingen' },
     { label: 'Chat', href: '/chat', match: '/chat' },

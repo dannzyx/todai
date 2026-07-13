@@ -298,8 +298,15 @@ const destroy = () => {
                     class="flex items-start gap-3 rounded-xl border border-border bg-card px-4 py-3 shadow-sm"
                 >
                     <div class="min-w-0 flex-1">
-                        <p class="font-medium text-foreground">
-                            {{ suggestion.title }}
+                        <p
+                            class="flex items-center gap-2 font-medium text-foreground"
+                        >
+                            <span class="min-w-0 truncate">{{
+                                suggestion.title
+                            }}</span>
+                            <Badge v-if="suggestion.for_me" variant="outline">
+                                For you
+                            </Badge>
                         </p>
                         <p
                             v-if="suggestion.description"

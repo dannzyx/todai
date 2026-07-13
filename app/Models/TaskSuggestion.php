@@ -16,6 +16,7 @@ use Illuminate\Support\Carbon;
  * @property string $title
  * @property string|null $description
  * @property Carbon|null $due_date
+ * @property bool $for_me
  * @property SuggestionStatus $status
  * @property string|null $accepted_task_id
  * @property Carbon|null $created_at
@@ -36,6 +37,7 @@ class TaskSuggestion extends Model
         'title',
         'description',
         'due_date',
+        'for_me',
         'status',
         'accepted_task_id',
     ];
@@ -49,6 +51,7 @@ class TaskSuggestion extends Model
     {
         return [
             'due_date' => 'date',
+            'for_me' => 'boolean',
             'status' => SuggestionStatus::class,
         ];
     }

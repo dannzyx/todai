@@ -64,6 +64,7 @@ class GenerateMeetingSuggestions implements ShouldQueue
                     'title' => $task['title'],
                     'description' => $task['description'] ?? null,
                     'due_date' => $this->validateDate($task['due_date'] ?? null),
+                    'for_me' => (bool) ($task['for_me'] ?? false),
                     'status' => SuggestionStatus::Pending,
                 ]);
             }
@@ -145,10 +146,12 @@ class GenerateMeetingSuggestions implements ShouldQueue
         $actionItems = $meeting->action_items ?: '(none)';
         $summary = $meeting->summary ?: '(none)';
         $transcript = $meeting->transcript ?: '(none)';
+        $currentUser = $meeting->user->name;
 
         return <<<PROMPT
         Meeting: {$meeting->title}
         Date: {$meetingDate} (timezone {$timezone}).
+        Current user (you): {$currentUser}
 
         Existing projects:
         {$list}

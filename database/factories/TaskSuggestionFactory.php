@@ -24,9 +24,20 @@ class TaskSuggestionFactory extends Factory
             'title' => fake()->sentence(3),
             'description' => null,
             'due_date' => null,
+            'for_me' => false,
             'status' => SuggestionStatus::Pending,
             'accepted_task_id' => null,
         ];
+    }
+
+    /**
+     * Indicate that the suggestion belongs to the current user.
+     */
+    public function forMe(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'for_me' => true,
+        ]);
     }
 
     /**

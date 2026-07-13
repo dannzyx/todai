@@ -55,6 +55,12 @@ class MeetingSuggestionAgent implements Agent, HasStructuredOutput
           instructions are in English.
         - Only fill due_date (YYYY-MM-DD) when the meeting states a clear
           deadline relative to the meeting date. Otherwise leave it empty.
+        - Set `for_me` to true when the task is assigned to, or is clearly the
+          responsibility of, the current user (their name is given in the
+          prompt). Speakers appear as "name: text" in the transcript, so a task
+          the current user takes on or commits to is theirs. Set it to false for
+          tasks owned by someone else, and default to false when ownership is
+          unclear.
         - If there are no tasks, return an empty list.
 
         Project rules — suggest exactly one project for the whole meeting:
@@ -89,6 +95,7 @@ class MeetingSuggestionAgent implements Agent, HasStructuredOutput
                     'title' => $schema->string()->required(),
                     'description' => $schema->string()->nullable()->required(),
                     'due_date' => $schema->string()->nullable()->required(), // YYYY-MM-DD
+                    'for_me' => $schema->boolean()->required(),
                 ])
             )->required(),
         ];

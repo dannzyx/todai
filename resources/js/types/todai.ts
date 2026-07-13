@@ -25,6 +25,7 @@ export type TaskSuggestion = {
     title: string;
     description: string | null;
     due_date: string | null;
+    for_me: boolean;
     status: SuggestionStatus;
     accepted_task_id: string | null;
     created_at: string;

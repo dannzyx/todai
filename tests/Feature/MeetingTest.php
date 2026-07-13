@@ -115,8 +115,8 @@ it('generates todo suggestions and an existing-project suggestion', function () 
                 'reasoning' => 'All todos relate to sales.',
             ],
             'tasks' => [
-                ['title' => 'Call Remy', 'description' => null, 'due_date' => '2026-07-10'],
-                ['title' => 'Send quote', 'description' => 'To TalentSquare', 'due_date' => null],
+                ['title' => 'Call Remy', 'description' => null, 'due_date' => '2026-07-10', 'for_me' => true],
+                ['title' => 'Send quote', 'description' => 'To TalentSquare', 'due_date' => null, 'for_me' => false],
             ],
         ],
     ]);
@@ -132,7 +132,10 @@ it('generates todo suggestions and an existing-project suggestion', function () 
 
     $call = TaskSuggestion::where('title', 'Call Remy')->sole();
     expect($call->status)->toBe(SuggestionStatus::Pending)
-        ->and($call->due_date->toDateString())->toBe('2026-07-10');
+        ->and($call->due_date->toDateString())->toBe('2026-07-10')
+        ->and($call->for_me)->toBeTrue();
+
+    expect(TaskSuggestion::where('title', 'Send quote')->sole()->for_me)->toBeFalse();
 });
 
 it('proposes a new project when none fit', function () {
@@ -148,7 +151,7 @@ it('proposes a new project when none fit', function () {
                 'confidence' => 'medium',
                 'reasoning' => 'Distinct new initiative.',
             ],
-            'tasks' => [['title' => 'Draft brief', 'description' => null, 'due_date' => null]],
+            'tasks' => [['title' => 'Draft brief', 'description' => null, 'due_date' => null, 'for_me' => false]],
         ],
     ]);
 
@@ -168,7 +171,7 @@ it('replaces still-pending suggestions when regenerating', function () {
         [
             'language' => 'English',
             'project' => ['existing_index' => null, 'new_project_name' => null, 'confidence' => 'low', 'reasoning' => 'n/a'],
-            'tasks' => [['title' => 'Fresh', 'description' => null, 'due_date' => null]],
+            'tasks' => [['title' => 'Fresh', 'description' => null, 'due_date' => null, 'for_me' => false]],
         ],
     ]);
 
@@ -186,7 +189,7 @@ it('persists the detected language and leaves task content untranslated', functi
             'language' => 'Dutch',
             'project' => ['existing_index' => null, 'new_project_name' => null, 'confidence' => 'low', 'reasoning' => 'n/a'],
             'tasks' => [
-                ['title' => 'Bel Remy terug', 'description' => 'Over het voorstel', 'due_date' => null],
+                ['title' => 'Bel Remy terug', 'description' => 'Over het voorstel', 'due_date' => null, 'for_me' => true],
             ],
         ],
     ]);
@@ -199,6 +202,32 @@ it('persists the detected language and leaves task content untranslated', functi
     $suggestion = TaskSuggestion::sole();
     expect($suggestion->title)->toBe('Bel Remy terug')
         ->and($suggestion->description)->toBe('Over het voorstel');
+});
+
+it('shows the current user\'s own todos before the rest', function () {
+    $this->withoutVite();
+
+    $user = User::factory()->create();
+    $meeting = Meeting::factory()->for($user)->manual()->create();
+
+    TaskSuggestion::factory()->for($meeting)->forMe()->create([
+        'title' => 'My task',
+        'created_at' => now()->subMinute(),
+    ]);
+    TaskSuggestion::factory()->for($meeting)->create([
+        'title' => 'Someone else task',
+        'created_at' => now(),
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('meetings.show', $meeting))
+        ->assertInertia(fn ($page) => $page
+            ->component('meetings/Show')
+            ->where('meeting.task_suggestions.0.title', 'My task')
+            ->where('meeting.task_suggestions.0.for_me', true)
+            ->where('meeting.task_suggestions.1.title', 'Someone else task')
+            ->where('meeting.task_suggestions.1.for_me', false)
+        );
 });
 
 // --- Accepting suggestions ---------------------------------------------------

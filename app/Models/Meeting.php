@@ -29,6 +29,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $suggested_project_name
  * @property SuggestionConfidence|null $suggestion_confidence
  * @property string|null $suggestion_reasoning
+ * @property string|null $language
  * @property MeetingStatus $status
  * @property string|null $error
  * @property Carbon|null $processed_at
@@ -60,6 +61,7 @@ class Meeting extends Model
         'suggested_project_name',
         'suggestion_confidence',
         'suggestion_reasoning',
+        'language',
         'status',
         'error',
         'processed_at',

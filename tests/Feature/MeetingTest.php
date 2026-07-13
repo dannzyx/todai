@@ -107,6 +107,7 @@ it('generates todo suggestions and an existing-project suggestion', function () 
 
     MeetingSuggestionAgent::fake([
         [
+            'language' => 'English',
             'project' => [
                 'existing_index' => 1,
                 'new_project_name' => null,
@@ -126,6 +127,7 @@ it('generates todo suggestions and an existing-project suggestion', function () 
     expect($meeting->status)->toBe(MeetingStatus::Ready)
         ->and($meeting->suggested_project_id)->toBe($project->id)
         ->and($meeting->suggested_project_name)->toBeNull()
+        ->and($meeting->language)->toBe('English')
         ->and($meeting->taskSuggestions()->count())->toBe(2);
 
     $call = TaskSuggestion::where('title', 'Call Remy')->sole();
@@ -139,6 +141,7 @@ it('proposes a new project when none fit', function () {
 
     MeetingSuggestionAgent::fake([
         [
+            'language' => 'English',
             'project' => [
                 'existing_index' => null,
                 'new_project_name' => 'Website relaunch',
@@ -163,6 +166,7 @@ it('replaces still-pending suggestions when regenerating', function () {
 
     MeetingSuggestionAgent::fake([
         [
+            'language' => 'English',
             'project' => ['existing_index' => null, 'new_project_name' => null, 'confidence' => 'low', 'reasoning' => 'n/a'],
             'tasks' => [['title' => 'Fresh', 'description' => null, 'due_date' => null]],
         ],
@@ -171,6 +175,30 @@ it('replaces still-pending suggestions when regenerating', function () {
     (new GenerateMeetingSuggestions($meeting))->handle();
 
     expect($meeting->taskSuggestions()->pluck('title')->all())->toBe(['Fresh']);
+});
+
+it('persists the detected language and leaves task content untranslated', function () {
+    $user = User::factory()->create();
+    $meeting = Meeting::factory()->for($user)->manual()->withContent()->create();
+
+    MeetingSuggestionAgent::fake([
+        [
+            'language' => 'Dutch',
+            'project' => ['existing_index' => null, 'new_project_name' => null, 'confidence' => 'low', 'reasoning' => 'n/a'],
+            'tasks' => [
+                ['title' => 'Bel Remy terug', 'description' => 'Over het voorstel', 'due_date' => null],
+            ],
+        ],
+    ]);
+
+    (new GenerateMeetingSuggestions($meeting))->handle();
+
+    $meeting->refresh();
+    expect($meeting->language)->toBe('Dutch');
+
+    $suggestion = TaskSuggestion::sole();
+    expect($suggestion->title)->toBe('Bel Remy terug')
+        ->and($suggestion->description)->toBe('Over het voorstel');
 });
 
 // --- Accepting suggestions ---------------------------------------------------

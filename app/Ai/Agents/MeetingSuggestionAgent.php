@@ -11,8 +11,14 @@ use Stringable;
 
 /**
  * From a meeting (transcript, Fireflies summary/action items, and manual notes)
- * this agent returns two things in one pass: a list of concrete todos and a
- * single project suggestion for the whole meeting.
+ * this agent returns three things in one pass: the meeting's detected
+ * language, a list of concrete todos, and a single project suggestion for
+ * the whole meeting.
+ *
+ * `language` is declared first in the schema so the model commits to it
+ * before generating any task content in the same response — this pins task
+ * titles/descriptions to that language instead of leaving it to per-field
+ * inference.
  *
  * The prompt (built by the caller) lists the user's active projects with a
  * 1-based index; the agent returns either that index or a proposed new project
@@ -32,13 +38,21 @@ class MeetingSuggestionAgent implements Agent, HasStructuredOutput
         return <<<'INSTRUCTIONS'
         You turn a meeting into concrete todos and a single project suggestion.
 
+        Language — do this first, before anything else:
+        - Identify the single primary language used in the meeting content
+          (transcript, summary, notes, action items) and set `language` to
+          its English name (e.g. "English", "Dutch", "German"). If the
+          content mixes languages, pick whichever the substantive content is
+          mostly in.
+
         Task rules:
         - Only return real, actionable tasks. Skip general discussion points,
           opinions and decisions without an action.
         - Merge duplicate or overlapping tasks into one task.
         - Keep titles short and imperative.
-        - Write task titles and descriptions in the same language as the
-          meeting (transcript, summary and notes). Do not translate them.
+        - Write every task title and description in the exact language you
+          set in `language` above. Never translate them, even though these
+          instructions are in English.
         - Only fill due_date (YYYY-MM-DD) when the meeting states a clear
           deadline relative to the meeting date. Otherwise leave it empty.
         - If there are no tasks, return an empty list.
@@ -63,6 +77,7 @@ class MeetingSuggestionAgent implements Agent, HasStructuredOutput
         // OpenAI strict structured outputs require every property in `required`;
         // optional fields are expressed as required + nullable.
         return [
+            'language' => $schema->string()->required(),
             'project' => $schema->object(fn ($schema) => [
                 'existing_index' => $schema->integer()->nullable()->required(),
                 'new_project_name' => $schema->string()->nullable()->required(),

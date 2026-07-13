@@ -70,6 +70,7 @@ class GenerateMeetingSuggestions implements ShouldQueue
 
             $meeting->update([
                 ...$this->resolveProjectSuggestion($data['project'] ?? [], $projects),
+                'language' => $data['language'] ?? null,
                 'status' => MeetingStatus::Ready,
                 'processed_at' => now(),
                 'error' => null,

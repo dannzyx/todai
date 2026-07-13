@@ -57,6 +57,52 @@ class TaskController extends Controller
     }
 
     /**
+     * The overview of every task across all projects, with search and filters.
+     *
+     * Filters (all optional, driven by query string so the view is shareable):
+     * - `search`  matches the title or description
+     * - `project` a project id, `inbox` for unassigned, or `all`
+     * - `status`  `open` (default) or `all`
+     */
+    public function index(Request $request): Response
+    {
+        Gate::authorize('viewAny', Task::class);
+
+        $search = trim((string) $request->query('search', ''));
+        $project = (string) $request->query('project', 'all');
+        $status = $request->query('status') === 'all' ? 'all' : 'open';
+
+        $tasks = $request->user()->tasks()
+            ->with(['project:id,name,color', 'suggestedProject:id,name,color'])
+            ->when($status === 'open', fn ($query) => $query->incomplete())
+            ->when($project === 'inbox', fn ($query) => $query->inInbox())
+            ->when(
+                $project !== 'inbox' && $project !== 'all' && $project !== '',
+                fn ($query) => $query->where('project_id', $project),
+            )
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('title', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%");
+                });
+            })
+            ->orderByRaw('completed_at is null desc')
+            ->orderByRaw('due_date is null')
+            ->orderBy('due_date')
+            ->latest('created_at')
+            ->get();
+
+        return Inertia::render('tasks/Index', [
+            'tasks' => $tasks,
+            'filters' => [
+                'search' => $search,
+                'project' => $project === '' ? 'all' : $project,
+                'status' => $status,
+            ],
+        ]);
+    }
+
+    /**
      * The Inbox view: unassigned tasks (project_id is null).
      */
     public function inbox(Request $request): Response

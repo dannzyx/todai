@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
+import { index as tasksIndex } from '@/actions/App/Http/Controllers/TaskController';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -27,6 +28,7 @@ type RailItem = {
 const items: RailItem[] = [
     { label: 'Today', href: '/dashboard', match: '/dashboard' },
     { label: 'Inbox', href: '/inbox', match: '/inbox' },
+    { label: 'Tasks', href: tasksIndex.url(), match: tasksIndex.url() },
     { label: 'Projects', href: '/projecten', match: '/projecten' },
     { label: 'Meetings', href: '/vergaderingen', match: '/vergaderingen' },
     { label: 'Chat', href: '/chat', match: '/chat' },
@@ -89,7 +91,7 @@ const emit = defineEmits<{ (e: 'open-command'): void }>();
             <div class="ml-auto flex items-center gap-1.5">
                 <button
                     type="button"
-                    class="flex items-center gap-2 rounded-md border border-border/70 px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                    class="hidden items-center gap-2 rounded-md border border-border/70 px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none sm:flex"
                     aria-label="Open command palette"
                     @click="emit('open-command')"
                 >

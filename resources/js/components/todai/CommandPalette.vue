@@ -4,12 +4,14 @@ import {
     CalendarDays,
     FolderKanban,
     Inbox,
+    ListChecks,
     MessageSquare,
     Plus,
     Search,
 } from '@lucide/vue';
 import { computed, nextTick, ref, watch } from 'vue';
 import ProjectController from '@/actions/App/Http/Controllers/ProjectController';
+import TaskController from '@/actions/App/Http/Controllers/TaskController';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useTaskModal } from '@/composables/useTaskModal';
 
@@ -50,6 +52,12 @@ const baseCommands = computed<Command[]>(() => [
     },
     { id: 'vandaag', label: 'Today', icon: CalendarDays, url: '/' },
     { id: 'inbox', label: 'Inbox', icon: Inbox, url: '/inbox' },
+    {
+        id: 'tasks',
+        label: 'All tasks',
+        icon: ListChecks,
+        url: TaskController.index().url,
+    },
     {
         id: 'projecten',
         label: 'Projects',

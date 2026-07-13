@@ -209,3 +209,96 @@ it('lists only inbox tasks on the inbox page', function () {
             ->where('tasks.0.id', $inbox->id)
         );
 });
+
+it('requires authentication for the tasks overview', function () {
+    $this->get(route('tasks.index'))->assertRedirect(route('login'));
+});
+
+it('lists all open tasks across projects on the overview by default', function () {
+    $user = User::factory()->create();
+    $project = Project::factory()->for($user)->create();
+
+    Task::factory()->for($user)->create(['project_id' => null]);
+    Task::factory()->forProject($project)->create();
+    Task::factory()->for($user)->completed()->create();
+
+    $this->actingAs($user)
+        ->get(route('tasks.index'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('tasks/Index')
+            ->has('tasks', 2)
+            ->where('filters.status', 'open')
+            ->where('filters.project', 'all')
+        );
+});
+
+it('includes completed tasks when status is all', function () {
+    $user = User::factory()->create();
+    Task::factory()->for($user)->create();
+    Task::factory()->for($user)->completed()->create();
+
+    $this->actingAs($user)
+        ->get(route('tasks.index', ['status' => 'all']))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('tasks/Index')
+            ->has('tasks', 2)
+        );
+});
+
+it('filters the overview by project', function () {
+    $user = User::factory()->create();
+    $project = Project::factory()->for($user)->create();
+    $wanted = Task::factory()->forProject($project)->create();
+    Task::factory()->for($user)->create(['project_id' => null]);
+
+    $this->actingAs($user)
+        ->get(route('tasks.index', ['project' => $project->id]))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->has('tasks', 1)
+            ->where('tasks.0.id', $wanted->id)
+        );
+});
+
+it('filters the overview to inbox tasks only', function () {
+    $user = User::factory()->create();
+    $project = Project::factory()->for($user)->create();
+    $inbox = Task::factory()->for($user)->create(['project_id' => null]);
+    Task::factory()->forProject($project)->create();
+
+    $this->actingAs($user)
+        ->get(route('tasks.index', ['project' => 'inbox']))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->has('tasks', 1)
+            ->where('tasks.0.id', $inbox->id)
+        );
+});
+
+it('searches tasks by title on the overview', function () {
+    $user = User::factory()->create();
+    $match = Task::factory()->for($user)->create(['title' => 'Offerte versturen']);
+    Task::factory()->for($user)->create(['title' => 'Koffie halen']);
+
+    $this->actingAs($user)
+        ->get(route('tasks.index', ['search' => 'offerte']))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->has('tasks', 1)
+            ->where('tasks.0.id', $match->id)
+        );
+});
+
+it('only shows the authenticated user their own tasks on the overview', function () {
+    $user = User::factory()->create();
+    $other = User::factory()->create();
+    Task::factory()->for($user)->create();
+    Task::factory()->for($other)->create();
+
+    $this->actingAs($user)
+        ->get(route('tasks.index'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page->has('tasks', 1));
+});

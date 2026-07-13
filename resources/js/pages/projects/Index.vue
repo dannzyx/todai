@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Archive, ArchiveRestore, Plus } from '@lucide/vue';
+import { ArchiveRestore, Plus } from '@lucide/vue';
 import { ref } from 'vue';
 import ProjectController from '@/actions/App/Http/Controllers/ProjectController';
 import Meta from '@/components/todai/Meta.vue';
@@ -21,14 +21,6 @@ defineProps<{
 
 const showArchived = ref(false);
 const creating = ref(false);
-
-const archive = (project: Project) => {
-    router.patch(
-        ProjectController.archive(project).url,
-        {},
-        { preserveScroll: true },
-    );
-};
 
 const unarchive = (project: Project) => {
     router.patch(
@@ -84,7 +76,7 @@ const isEmpty = (project: Project): boolean =>
                 <li
                     v-for="project in active"
                     :key="project.id"
-                    class="group flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 shadow-sm transition-colors hover:border-solar/50"
+                    class="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 shadow-sm transition-colors hover:border-solar/50"
                     :class="{
                         'opacity-55 hover:opacity-100': isEmpty(project),
                     }"
@@ -105,15 +97,6 @@ const isEmpty = (project: Project): boolean =>
                             taskCountLabel(project.open_tasks_count)
                         }}</Meta>
                     </div>
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        class="opacity-100 transition-opacity focus-visible:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
-                        @click="archive(project)"
-                    >
-                        <Archive class="mr-1.5 h-4 w-4" />
-                        Archive
-                    </Button>
                 </li>
             </ul>
         </section>

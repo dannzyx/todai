@@ -22,6 +22,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [TaskController::class, 'today'])->name('dashboard');
 
     // Tasks (Dutch URLs, English route names).
+    Route::get('taken', [TaskController::class, 'index'])->name('tasks.index');
     Route::get('inbox', [TaskController::class, 'inbox'])->name('tasks.inbox');
     Route::post('taken', [TaskController::class, 'store'])->name('tasks.store');
     Route::put('taken/{task}', [TaskController::class, 'update'])->name('tasks.update');

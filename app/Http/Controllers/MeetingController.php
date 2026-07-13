@@ -52,7 +52,9 @@ class MeetingController extends Controller
             'project:id,name,color',
             'suggestedProject:id,name,color',
             'taskSuggestions' => function ($query) {
-                $query->where('status', SuggestionStatus::Pending)->latest('created_at');
+                $query->where('status', SuggestionStatus::Pending)
+                    ->orderByDesc('for_me')
+                    ->latest('created_at');
             },
         ]);
 

@@ -210,8 +210,14 @@ it('shows the current user\'s own todos before the rest', function () {
     $user = User::factory()->create();
     $meeting = Meeting::factory()->for($user)->manual()->create();
 
-    TaskSuggestion::factory()->for($meeting)->create(['title' => 'Someone else task']);
-    TaskSuggestion::factory()->for($meeting)->forMe()->create(['title' => 'My task']);
+    TaskSuggestion::factory()->for($meeting)->forMe()->create([
+        'title' => 'My task',
+        'created_at' => now()->subMinute(),
+    ]);
+    TaskSuggestion::factory()->for($meeting)->create([
+        'title' => 'Someone else task',
+        'created_at' => now(),
+    ]);
 
     $this->actingAs($user)
         ->get(route('meetings.show', $meeting))
